@@ -12,8 +12,6 @@ const HomePage = () => {
          <Link to='/blog' className='text-lg mt-4 text-blue-500'>Go to Blog Page</Link>
          <Link to='/about' className='text-lg mt-4 text-blue-500'>Go to About Page</Link>
          <Link to='/details' className='text-lg mt-4 text-blue-500'>Go to Details Page</Link>
-         
-
     </div>
   )
 }
