@@ -41,5 +41,65 @@ const mockPosts = [
     image:
       "https://images.unsplash.com/photo-1621839673705-6617adf9e890",
   },
+    {
+    id: 4,
+    title: "Getting Started with Tailwind CSS",
+    excerpt:
+      "Build modern and responsive user interfaces faster using utility-first CSS.",
+    content:
+      "Tailwind CSS provides low-level utility classes that let you create beautiful designs directly in your markup. Learn how to set up Tailwind and build responsive layouts efficiently.",
+    author: "Amanuel Amare",
+    category: "performance",
+    readTime: "4 min read",
+    date: "June 5, 2026",
+    image:
+      "https://images.unsplash.com/photo-1621839673705-6617adf9e890",
+  },
+    {
+    id: 5,
+    title: "Getting Started with Tailwind CSS",
+    excerpt:
+      "Build modern and responsive user interfaces faster using utility-first CSS.",
+    content:
+      "Tailwind CSS provides low-level utility classes that let you create beautiful designs directly in your markup. Learn how to set up Tailwind and build responsive layouts efficiently.",
+    author: "Amanuel Amare",
+    category: "vitest",
+    readTime: "4 min read",
+    date: "June 5, 2026",
+    image:
+      "https://images.unsplash.com/photo-1621839673705-6617adf9e890",
+  },
+   {
+    id: 6,
+    title: "Getting Started with Tailwind CSS",
+    excerpt:
+      "Build modern and responsive user interfaces faster using utility-first CSS.",
+    content:
+      "Tailwind CSS provides low-level utility classes that let you create beautiful designs directly in your markup. Learn how to set up Tailwind and build responsive layouts efficiently.",
+    author: "Amanuel Amare",
+    category: "vitest",
+    readTime: "4 min read",
+    date: "June 5, 2026",
+    image:
+      "https://images.unsplash.com/photo-1621839673705-6617adf9e890",
+  },
+   {
+    id: 7,
+    title: "Getting Started with Tailwind CSS",
+    excerpt:
+      "Build modern and responsive user interfaces faster using utility-first CSS.",
+    content:
+      "Tailwind CSS provides low-level utility classes that let you create beautiful designs directly in your markup. Learn how to set up Tailwind and build responsive layouts efficiently.",
+    author: "Amanuel Amare",
+    category: "vitest",
+    readTime: "4 min read",
+    date: "June 5, 2026",
+    image:
+      "https://images.unsplash.com/photo-1621839673705-6617adf9e890",
+  },
+  
+  
+
 ];
+
 export default mockPosts;
