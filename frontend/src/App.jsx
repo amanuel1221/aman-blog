@@ -6,6 +6,7 @@ import DetailsPage from './pages/DetailsPage';
 import AboutPage from './pages/AboutPage';
 import {BrowserRouter as Router, Routes, Route} from 'react-router-dom';
 import BlogPage from './pages/BlogPage';
+import ContactPage from './pages/Contact';
 
 const App = () => {
   return (
@@ -18,6 +19,7 @@ const App = () => {
         <Route path='/about' element={<AboutPage />} />
         <Route path='/blogs' element={<BlogPage />} />
         <Route path='/blogs/:id' element={<DetailsPage />} />
+        <Route path='/contact' element={<ContactPage />} />
       </Routes>
       <Footer />
     </>
