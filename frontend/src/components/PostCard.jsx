@@ -8,7 +8,7 @@ const PostCard = ({ post }) => {
       
       <div className="relative aspect-[4/3] w-full overflow-hidden bg-gray-100">
         <img
-          src={post.image}
+          src={post.coverImage}
           alt={post.title}
           className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
           loading="lazy"
@@ -31,7 +31,8 @@ const PostCard = ({ post }) => {
             >
               <FaUserCircle className="w-5 h-5 text-gray-400" />
               <span className="font-semibold text-gray-900">
-                {post.author}
+            
+<span>{post.author?.name || post.author}</span>
               </span>
             </NavLink>
           </div>
