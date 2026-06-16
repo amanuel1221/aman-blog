@@ -1,13 +1,73 @@
 <!doctype html>
 <html lang="en">
   <head>
+    <!-- Basic Meta -->
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>frontend</title>
+
+    <!-- Title -->
+    <title>Amanuel Blog | Tech Articles, Tutorials & Dev Insights</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <!-- SEO Meta -->
+    <meta
+      name="description"
+      content="A modern developer blog sharing tutorials on React, JavaScript, backend, UI design, and software engineering concepts."
+    />
+    <meta name="keywords" content="blog, react, javascript, web development, software engineering, frontend, backend, tutorials" />
+    <meta name="author" content="Amanuel Amare" />
+
+    <!-- Open Graph (Facebook / LinkedIn) -->
+    <meta property="og:title" content="Amanuel Blog | Tech Articles & Tutorials" />
+    <meta
+      property="og:description"
+      content="Learn modern web development, React, and software engineering concepts through clean, practical articles."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="/og-image.png" />
+    <meta property="og:url" content="https://your-domain.com" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Amanuel Blog" />
+    <meta
+      name="twitter:description"
+      content="Modern web development tutorials and engineering insights."
+    />
+    <meta name="twitter:image" content="/og-image.png" />
+
+    <!-- Theme Color -->
+    <meta name="theme-color" content="#ffffff" />
+
+    <!-- Preconnect (performance boost) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <!-- Fonts (optional clean blog font) -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Base styling for smooth font rendering -->
+    <style>
+      body {
+        font-family: "Inter", system-ui, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        margin: 0;
+        background: #ffffff;
+      }
+    </style>
   </head>
+
   <body>
+    <!-- React Root -->
     <div id="root"></div>
+
+    <!-- Main App -->
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
