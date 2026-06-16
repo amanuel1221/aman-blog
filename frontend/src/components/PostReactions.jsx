@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { FaThumbsUp, FaThumbsDown, FaRegThumbsUp, FaRegThumbsDown } from "react-icons/fa";
-
+import { useAuth } from "../context/AuthContext";
 export default function PostReactions({
   postId,
   initialLikes = [],
@@ -9,11 +9,20 @@ export default function PostReactions({
 }) {
   const [likes, setLikes] = useState(Array.isArray(initialLikes) ? initialLikes : []);
   const [dislikes, setDislikes] = useState(Array.isArray(initialDislikes) ? initialDislikes : []);
+   const { user } = useAuth();
 
   const isLiked = likes.includes(currentUserId);
   const isDisliked = dislikes.includes(currentUserId);
+   const requireAuth = () => {
+    if (!user) {
+      alert("Please login to react");
+      return false;
+    }
+    return true;
+  };
 
   const handleLike = () => {
+     if (!requireAuth()) return;
     if (isLiked) {
       setLikes(likes.filter((id) => id !== currentUserId));
       return;
@@ -23,6 +32,7 @@ export default function PostReactions({
   };
 
   const handleDislike = () => {
+      if (!requireAuth()) return;
     if (isDisliked) {
       setDislikes(dislikes.filter((id) => id !== currentUserId));
       return;
