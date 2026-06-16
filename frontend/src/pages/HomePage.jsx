@@ -15,7 +15,7 @@ const HomePage = () => {
     .slice(0, 3);
 
   return (
-    <div className="w-full min-h-screen py-16 md:py-24 flex flex-col gap-16 md:gap-24 bg-theme-light">
+    <div className="w-full min-h-screen py-16 md:py-24 flex flex-col gap-16 md:gap-24 bg-theme-light" data-testid="home-page">
 
       <HomeHero />
 
@@ -26,7 +26,7 @@ const HomePage = () => {
       <WhyReadMyBlog />
 
       {/* Latest Articles */}
-      <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" data-testid="home-page-latest-articles">
         <div className="flex items-center justify-between mb-10">
           <div>
             <p className="text-sm font-semibold text-blue-600 uppercase tracking-wider">
@@ -40,12 +40,13 @@ const HomePage = () => {
           <Link
             to="/blogs"
             className="hidden md:flex px-5 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition"
+            data-testid="home-page-view-all-articles"
           >
             View All
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" data-testid="home-page-latest-posts">
           {latestPosts.map((post) => (
             <PostCard key={post.id} post={post} />
           ))}
@@ -55,6 +56,7 @@ const HomePage = () => {
           <Link
             to="/blogs"
             className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-100 transition"
+            data-testid="home-page-view-all-articles-mobile"
           >
             View All Articles
           </Link>

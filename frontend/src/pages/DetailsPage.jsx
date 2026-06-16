@@ -67,31 +67,34 @@ const DetailsPage = () => {
       ? "bg-stone-50"
       : "bg-white"
   }`}
->  <ReadingProgressBar />
+  data-testid="details-page"
+>
+    <ReadingProgressBar />
   <ScrollToTopButton />
   <ReadingMode onToggle={setReadingMode} />
 
-  <article className="max-w-7xl mx-auto px-6 pt-14 pb-24">
-       <nav className="text-xs font-semibold uppercase tracking-[0.3em] text-gray-400 text-center mb-6">
+  <article className="max-w-7xl mx-auto px-6 pt-14 pb-24" data-testid="details-page-article">
+       <nav className="text-xs font-semibold uppercase tracking-[0.3em] text-gray-400 text-center mb-6" data-testid="details-page-breadcrumb">
   Home / Blog / {post.category || "General"}
 </nav>
 
-<h1 className="text-4xl md:text-5xl font-black text-gray-900 text-center leading-tight max-w-4xl mx-auto mb-6">
+<h1 className="text-4xl md:text-5xl font-black text-gray-900 text-center leading-tight max-w-4xl mx-auto mb-6" data-testid="details-page-title">
   {post.title}
 </h1>
 
-<p className="text-gray-500 text-lg text-center max-w-2xl mx-auto mb-10 leading-relaxed">
+<p className="text-gray-500 text-lg text-center max-w-2xl mx-auto mb-10 leading-relaxed" data-testid="details-page-excerpt">
   {post.excerpt}
 </p>
 
-        <div className="flex items-center justify-center gap-4 text-xs font-bold text-gray-400 mb-14 uppercase tracking-wider">
-          <div className="flex items-center gap-2">
+        <div className="flex items-center justify-center gap-4 text-xs font-bold text-gray-400 mb-14 uppercase tracking-wider" data-testid="details-page-meta">
+          <div className="flex items-center gap-2" data-testid="details-page-author">
             <NavLink
               to="/about"
               className="flex items-center gap-2 hover:text-black transition-colors"
+              data-testid="details-page-author-link"
             >
               <FaUserCircle className="w-5 h-5 text-gray-300" />
-              <span className="font-extrabold text-gray-900 tracking-tight">
+              <span className="font-extrabold text-gray-900 tracking-tight" data-testid="details-page-author-name">
                 {post.author?.name || post.author || "Amanuel Amare"}
               </span>
             </NavLink>
@@ -99,7 +102,7 @@ const DetailsPage = () => {
           <span>•</span>
           <span>{post.date || "June 2026"}</span>
           <span>•</span>
-          <span className="text-gray-900 bg-gray-100 px-2.5 py-0.5 rounded-md font-extrabold text-[10px]">
+          <span className="text-gray-900 bg-gray-100 px-2.5 py-0.5 rounded-md font-extrabold text-[10px]" data-testid="details-page-read-time"  >
             {post.readTime || "5 min read"}
           </span>
 
@@ -114,6 +117,7 @@ const DetailsPage = () => {
         src={post.coverImage}
         alt={post.title}
         className="w-full h-full object-cover hover:scale-105 transition duration-700"
+        data-testid="details-page-cover-image"
       />
     </div>
   </div>
@@ -124,6 +128,7 @@ const DetailsPage = () => {
       ? "max-w-3xl mx-auto transition-all duration-500"
       : "grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-14 max-w-6xl mx-auto transition-all duration-500"
   }
+  data-testid="details-page-content"
 >
 <section
   className={
@@ -131,6 +136,7 @@ const DetailsPage = () => {
       ? "text-gray-800 text-xl leading-10 font-medium"
       : "text-gray-800 text-lg leading-8 font-medium"
   }
+  data-testid="details-page-section"
 >        <ReactMarkdown
             remarkPlugins={[remarkGfm]}
             components={{
@@ -235,7 +241,7 @@ code({ inline, children }) {
      
         </section>
   {!readingMode && (
-  <aside className="hidden lg:block">
+  <aside className="hidden lg:block" data-testid="details-page-toc">
     <div className="sticky top-24">
       <TableOfContents content={post.content} />
     </div>
@@ -278,7 +284,7 @@ code({ inline, children }) {
 </div>
   )}
 {!readingMode && (
-<section className="w-full max-w-6xl mx-auto mt-24 pt-16 border-t border-gray-100 px-6">
+<section className="w-full max-w-6xl mx-auto mt-24 pt-16 border-t border-gray-100 px-6" data-testid="details-page-related-articles">
           <div className="text-center mb-12">
           <h2 className="text-4xl md:text-5xl font-black tracking-tight">            Related Articles
           </h2>
@@ -288,12 +294,13 @@ code({ inline, children }) {
         </div>
       
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8" data-testid="details-page-related-articles-grid">
           {relatedArticles.map((item) => (
             <div
               key={item.id}
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
               className="cursor-pointer"
+              data-testid="details-page-related-article"
             >
               <PostCard post={item} />
             </div>

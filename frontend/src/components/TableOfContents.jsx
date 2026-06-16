@@ -24,7 +24,7 @@ const TableOfContents = ({ content }) => {
   };
 
   return (
-    <div className="sticky top-24 w-full max-w-sm">
+    <div className="sticky top-24 w-full max-w-sm" data-testid="table-of-contents">
     
       <button
         onClick={() => setOpen(!open)}
@@ -32,8 +32,9 @@ const TableOfContents = ({ content }) => {
         bg-white border border-gray-200 shadow-sm
         rounded-xl px-4 py-3 text-sm font-medium
         hover:shadow-md transition"
+        data-testid="table-of-contents-toggle"
       >
-        <span>Table of Contents</span>
+        <span data-testid="table-of-contents-title">Table of Contents</span>
         {open ? <FaChevronUp /> : <FaChevronDown />}
       </button>
 
@@ -42,8 +43,8 @@ const TableOfContents = ({ content }) => {
         className={`overflow-hidden transition-all duration-300 ease-in-out
         ${open ? "max-h-96 opacity-100 mt-2" : "max-h-0 opacity-0"}`}
       >
-        <div className="bg-white border border-gray-100 rounded-xl p-3 shadow-sm">
-          <ul className="space-y-2 text-sm">
+        <div className="bg-white border border-gray-100 rounded-xl p-3 shadow-sm" data-testid="table-of-contents-content">
+          <ul className="space-y-2 text-sm" data-testid="table-of-contents-list">
             {headings.map((h, i) => (
               <li
                 key={i}
