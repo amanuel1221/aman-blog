@@ -23,6 +23,7 @@ export default function ReadingProgressBar() {
         className="h-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500
         shadow-[0_0_10px_rgba(99,102,241,0.6)] transition-all duration-150"
         style={{ width: `${progress}%` }}
+        data-testid="reading-progress-bar"
       />
     </div>
   );

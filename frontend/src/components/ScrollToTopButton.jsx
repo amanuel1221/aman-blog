@@ -25,6 +25,7 @@ export default function ScrollToTopButton() {
   className="fixed bottom-8 right-8 z-50 px-4 py-3 rounded-full
 bg-gray-900 text-white shadow-xl
 hover:bg-gray-800 hover:scale-105 transition-all cursor-pointer"
+      data-testid="scroll-to-top-button"  
     >
       <FaArrowUp />
     </button>

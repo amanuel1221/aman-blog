@@ -22,10 +22,12 @@ hover:scale-105
 transition-all duration-300
 flex items-center gap-2
 "
+      data-testid="reading-mode-toggle"
     >
       {enabled ? <FaTimes /> : <FaBookOpen />}
 
-      <span className="text-sm font-medium">
+      <span className="text-sm font-medium"
+      data-testid="reading-mode-toggle-text">
         {enabled ? "Exit Reading" : "Reading Mode"}
       </span>
     </button>

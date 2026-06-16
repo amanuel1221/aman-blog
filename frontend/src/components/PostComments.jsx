@@ -55,10 +55,10 @@ const PostComments = ({ postId, currentUserId, currentUserName }) => {
   };
 
   return (
-    <div className="w-full max-w-3xl mx-auto pt-12 border-t border-gray-100 mt-14">
+    <div className="w-full max-w-3xl mx-auto pt-12 border-t border-gray-100 mt-14" data-testid="post-comments">
       
       <div className="flex justify-between items-center mb-6">
-        <h3 className="text-xl font-black text-gray-900 tracking-tight">
+        <h3 className="text-xl font-black text-gray-900 tracking-tight" data-testid="post-comments-length">
           {allComments.length} Responses
         </h3>
       </div>
@@ -81,8 +81,9 @@ const PostComments = ({ postId, currentUserId, currentUserName }) => {
             type="submit"
             disabled={!rootCommentText.trim()}
             className="bg-black text-white px-5 py-2.5 rounded-xl font-bold text-xs transition-colors hover:bg-gray-800 disabled:opacity-30"
+            data-testid="post-comments-submit"
           >
-            Respond
+            Comment
           </button>
         </div>
       </form>
@@ -99,7 +100,8 @@ const PostComments = ({ postId, currentUserId, currentUserName }) => {
         ))}
 
         {rootComments.length === 0 && (
-          <p className="text-center text-sm font-medium text-gray-400 py-6">
+          <p className="text-center text-sm font-medium text-gray-400 py-6"
+          data-testid="post-comments-empty">
             No thoughts shared yet. Be the first to start the conversation!
           </p>
         )}

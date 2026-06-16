@@ -81,10 +81,12 @@ const SearchModal = ({ open, onClose }) => {
       role="dialog"
       aria-modal="true"
       aria-labelledby="search-modal-title"
+      data-testid="search-modal"
     >
       <div
         className="bg-white w-full max-w-5xl rounded-2xl shadow-2xl mt-10 mb-10 overflow-hidden"
         onClick={(e) => e.stopPropagation()}
+        data-testid="search-modal-content"
       >
        
         <div className="sticky top-0 bg-white/95 backdrop-blur-md border-b border-gray-100 p-6 z-10">
@@ -92,6 +94,7 @@ const SearchModal = ({ open, onClose }) => {
             <h2
               id="search-modal-title"
               className="text-2xl font-bold text-gray-800"
+              data-testid="search-modal-title"
             >
               Search Articles
             </h2>
@@ -100,6 +103,7 @@ const SearchModal = ({ open, onClose }) => {
               onClick={onClose}
               className="p-2 rounded-full hover:bg-gray-100 transition-colors"
               aria-label="Close search modal"
+              data-testid="search-modal-close-button"
             >
               <FaTimes className="text-xl text-gray-500 hover:text-gray-700" />
             </button>
@@ -114,6 +118,7 @@ const SearchModal = ({ open, onClose }) => {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50/50 transition-all"
+                data-testid="search-modal-input"
               />
             </div>
 
@@ -130,8 +135,9 @@ const SearchModal = ({ open, onClose }) => {
           </p>
         </div>
 
+
         
-        <div className="p-6 bg-gray-50/30 min-h-[350px]">
+        <div className="p-6 bg-gray-50/30 min-h-[350px]" data-testid="search-modal-results">
           {filteredPosts.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {filteredPosts.map((post) => (
@@ -189,11 +195,11 @@ const SearchModal = ({ open, onClose }) => {
             </div>
           ) : (
             <div className="text-center py-20">
-              <h3 className="text-xl font-semibold text-gray-700">
+              <h3 className="text-xl font-semibold text-gray-700" data-testid="search-modal-no-results">
                 No articles found
               </h3>
 
-              <p className="text-gray-500 mt-2">
+              <p className="text-gray-500 mt-2" data-testid="search-modal-no-results-description">
                 Try a different keyword or category.
               </p>
             </div>

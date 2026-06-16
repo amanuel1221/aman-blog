@@ -32,15 +32,16 @@ export default function PostReactions({
   };
 
   return (
-    <section className="max-w-3xl mx-auto mt-16 pt-12 border-t border-gray-100 text-center">
-      <h3 className="text-gray-900 text-lg font-black tracking-tight mb-6">
+    <section className="max-w-3xl mx-auto mt-16 pt-12 border-t border-gray-100 text-center" data-testid="post-reactions">
+      <h3 className="text-gray-900 text-lg font-black tracking-tight mb-6" data-testid="post-reactions-title">
         Was this article helpful?
       </h3>
 
-      <div className="flex justify-center items-center gap-4">
+      <div className="flex justify-center items-center gap-4" data-testid="post-reactions-buttons">
         <button
           onClick={handleLike}
           className={`flex items-center gap-2.5 px-6 py-3 rounded-xl border font-bold text-sm transition-all duration-200 transform active:scale-95 cursor-pointer
+            data-testid="post-reactions-like"
           ${
             isLiked
               ? "bg-white border-gray-900 text-gray-900 scale-105 shadow-sm"
@@ -54,6 +55,7 @@ export default function PostReactions({
         <button
           onClick={handleDislike}
           className={`flex items-center gap-2.5 px-6 py-3 rounded-xl border font-bold text-sm transition-all duration-200 transform active:scale-95 cursor-pointer
+            data-testid="post-reactions-dislike"
           ${
             isDisliked
               ? "bg-white border-gray-900 text-gray-900 scale-105 shadow-sm"

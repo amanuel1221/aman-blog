@@ -31,17 +31,21 @@ export default function CommentItem({
     : "Recently";
 
   return (
-    <div className="bg-white border border-gray-200 rounded-3xl p-6 mb-4">
-      <div className="flex gap-4">
+    <div className="bg-white border border-gray-200 rounded-3xl p-6 mb-4"
+    data-testid="comment-item">
+      <div className="flex gap-4"
+      data-testid="comment-content">
         <img
           src={`https://ui-avatars.com/api/?name=${encodeURIComponent(authorName)}&background=f3f4f6&color=111827&bold=true`}
           alt={authorName}
           className="w-12 h-12 rounded-full object-cover shrink-0"
+          data-testid="comment-avatar"
         />
 
         <div className="flex-1">
           <div className="flex items-center gap-3">
-            <h4 className="font-bold text-gray-900">
+            <h4 className="font-bold text-gray-900"
+            data-testid="comment-author">
               {authorName}
             </h4>
 
@@ -50,15 +54,17 @@ export default function CommentItem({
             </span>
           </div>
 
-          <p className="mt-3 text-gray-600 leading-relaxed">
+          <p className="mt-3 text-gray-600 leading-relaxed"
+           data-testid="comment-content">
             {comment.content || ""}
           </p>
 
           <button
             onClick={() => setShowReply(!showReply)}
             className="mt-4 flex items-center gap-2 text-sm font-semibold text-gray-500 hover:text-black cursor-pointer"
+             data-testid="comment-reply-button"
           >
-            <FaReply size={12} />
+            <FaReply size={12}  data-testid="comment-reply-icon"/>
             Reply
           </button>
 
@@ -70,6 +76,7 @@ export default function CommentItem({
                 onChange={(e) => setReplyText(e.target.value)}
                 className="w-full border rounded-xl p-3 bg-white text-gray-800"
                 placeholder={`Write a reply to ${authorName}...`}
+                 data-testid="comment-reply-textarea"
               />
 
               <div className="flex gap-2 mt-3 justify-end">
@@ -77,6 +84,7 @@ export default function CommentItem({
                   type="button"
                   onClick={() => setShowReply(false)}
                   className="bg-gray-200 text-gray-700 px-4 py-2 rounded-xl text-xs font-bold cursor-pointer"
+                  data-testid="comment-reply-cancel-button"
                 >
                   Cancel
                 </button>
@@ -84,6 +92,7 @@ export default function CommentItem({
                   onClick={submitReply}
                   disabled={!replyText.trim()}
                   className="bg-black text-white px-5 py-2 rounded-xl text-xs font-bold disabled:opacity-30 cursor-pointer"
+                  data-testid="comment-reply-submit-button"
                 >
                   Reply
                 </button>
@@ -92,7 +101,8 @@ export default function CommentItem({
           )}
 
           {Array.isArray(replies) && replies.length > 0 && (
-            <div className="mt-6 pl-6 border-l-2 border-gray-100 space-y-4">
+            <div className="mt-6 pl-6 border-l-2 border-gray-100 space-y-4"
+            data-testid="comment-replies">
               {replies.map((reply) => {
              
                 if (!reply) return null;
@@ -105,14 +115,17 @@ export default function CommentItem({
                         src={`https://ui-avatars.com/api/?name=${encodeURIComponent(replyAuthorName)}&background=f9fafb&color=4b5563`}
                         alt={replyAuthorName}
                         className="w-10 h-10 rounded-full shrink-0"
+                        data-testid="comment-reply-avatar"
                       />
 
                       <div className="flex-1">
-                        <p className="font-semibold text-gray-900 text-sm">
+                        <p className="font-semibold text-gray-900 text-sm"
+                        data-testid="comment-reply-author">
                           {replyAuthorName}
                         </p>
 
-                        <p className="text-gray-600 mt-1 text-sm">
+                        <p className="text-gray-600 mt-1 text-sm"
+                        data-testid="comment-reply-content">
                           {reply.content || ""}
                         </p>
                       </div>
