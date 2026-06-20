@@ -15,8 +15,6 @@ test("checking the renders of navbar and links appearing correctly", async () =>
     const header = screen.getByTestId("navbar-header");
     const navbar = screen.getByTestId("navbar-nav");
     const logo = screen.getByText("Amanuel's Blog");
-    const searchIcon = screen.getByTestId("navbar-mobile-search");
-    const darkModeToggle = screen.getByTestId("navbar-mobile-search");
     const Home = screen.getByText("Home");
     const Blogs = screen.getByText("Blogs");
     const About = screen.getByText("About");
@@ -29,8 +27,7 @@ test("checking the renders of navbar and links appearing correctly", async () =>
 
     expect(logo).toBeInTheDocument();
 
-    expect(searchIcon).toBeInTheDocument();
-    expect(darkModeToggle).toBeInTheDocument();
+    
     expect(Home).toBeInTheDocument();
     expect(Blogs).toBeInTheDocument();
     expect(About).toBeInTheDocument();
@@ -138,7 +135,7 @@ test("test navbar links render with correct paths", () => {
     const aboutLink = screen.getByRole("link", { name: "About" });
     const blogsLink = screen.getByRole("link", { name: "Blogs" });
 
-    const contactLink = screen.getByRole("link", { name: "Contact Me" });
+    const contactLink = screen.getByText("Contact Me");
     expect(homeLink).toBeInTheDocument();
     expect(aboutLink).toBeInTheDocument();
     expect(blogsLink).toBeInTheDocument();

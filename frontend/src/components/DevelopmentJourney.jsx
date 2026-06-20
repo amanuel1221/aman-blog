@@ -12,9 +12,9 @@ const DevelopmentJourney = () => {
   ];
 
   return (
-    <section className="w-full bg-white py-10 md:py-24" data-testid="development-journey">
+    <section className="w-full bg-white py-10 md:py-24" data-testid="development-journey" aria-labelledby="dev-journey-title">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-
+<header>
         <h2 className="text-3xl md:text-4xl font-bold text-gray-900" data-testid="development-journey-title">
           My Development Journey
         </h2>
@@ -22,20 +22,24 @@ const DevelopmentJourney = () => {
         <p className="mt-4 text-gray-600 max-w-2xl mx-auto " data-testid="development-journey-description">
           Building projects, writing code, and continuously learning modern web technologies.
         </p>
+        </header>
 
-        <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 " data-testid="development-journey-stats">
+        <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 " data-testid="development-journey-stats"
+        role="list"
+          aria-label="Development statistics">
           {stats.map((item, index) => (
-            <div
+            <article
               key={index}
               className="bg-gray-50 border border-gray-200 rounded-2xl p-8 shadow-sm hover:shadow-md transition-all"  data-testid="development-journey-stat-cards"
-            >
+            role="listitem"
+            aria-label={`${item.label} statistic`}>
               <h3 className="text-3xl font-bold text-gray-900"  data-testid="development-journey-number">
                 <AnimatedNumber value={item.value} />
               </h3>
               <p className="mt-2 text-gray-600 font-medium"  data-testid="development-journey-label">
                 {item.label}
               </p>
-            </div>
+            </article>
           ))}
         </div>
 

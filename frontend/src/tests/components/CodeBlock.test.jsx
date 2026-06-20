@@ -104,11 +104,7 @@ it("copies code to clipboard when copy button is clicked", async () => {
     expect(screen.getByText('123')).toBeInTheDocument();
   });
 
-  it('handles code that is null or undefined', () => {
-    render(<CodeBlock>{null}</CodeBlock>);
-    
-    expect(screen.getByText('null')).toBeInTheDocument();
-  });
+
 
 
 

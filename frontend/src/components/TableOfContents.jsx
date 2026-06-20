@@ -19,27 +19,30 @@ const TableOfContents = ({ content }) => {
     const el = document.getElementById(id);
     if (el) {
       el.scrollIntoView({ behavior: "smooth", block: "start" });
-      setOpen(false); 
+      setOpen(false);
     }
   };
 
   return (
-    <div className="sticky top-24 w-full max-w-sm" data-testid="table-of-contents">
-    
-      <button
-        onClick={() => setOpen(!open)}
-        className="w-full flex items-center justify-between
+    <aside className="sticky top-24 w-full max-w-sm" data-testid="table-of-contents" aria-labelledby="table-of-contents-heading">
+      <nav
+        aria-label="Table of Contents"
+        className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden"
+      >
+        <button
+          onClick={() => setOpen(!open)}
+          className="w-full flex items-center justify-between
         bg-white border border-gray-200 shadow-sm
         rounded-xl px-4 py-3 text-sm font-medium
         hover:shadow-md transition"
-        data-testid="table-of-contents-toggle"
-      >
-        <span data-testid="table-of-contents-title">Table of Contents</span>
-        {open ? <FaChevronUp /> : <FaChevronDown />}
-      </button>
+          data-testid="table-of-contents-toggle"
+        >
+          <span data-testid="table-of-contents-title" id="table-of-contents-heading">Table of Contents</span>
+          {open ? <FaChevronUp aria-hidden="true" /> : <FaChevronDown aria-hidden="true" />}
+        </button>
 
-  
-      <div
+
+        <div
         className={`overflow-hidden transition-all duration-300 ease-in-out
         ${open ? "max-h-96 opacity-100 mt-2" : "max-h-0 opacity-0"}`}
       >
@@ -63,7 +66,11 @@ const TableOfContents = ({ content }) => {
           </ul>
         </div>
       </div>
-    </div>
+
+
+        
+      </nav>
+    </aside>
   );
 };
 

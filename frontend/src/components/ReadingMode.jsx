@@ -13,6 +13,13 @@ export default function ReadingMode({ onToggle }) {
   return (
     <button
       onClick={handleToggle}
+      type="button"
+      aria-pressed={enabled}
+      aria-label={
+        enabled
+          ? "Disable reading mode"
+          : "Enable reading mode"
+      }
  className="
 fixed bottom-24 right-8 z-50
 px-4 py-3 rounded-full
@@ -24,11 +31,14 @@ flex items-center gap-2
 "
       data-testid="reading-mode-toggle"
     >
-      {enabled ? <FaTimes /> : <FaBookOpen />}
+      {enabled ? <FaTimes aria-hidden="true"/> : <FaBookOpen aria-hidden="true"/>}
 
       <span className="text-sm font-medium"
       data-testid="reading-mode-toggle-text">
         {enabled ? "Exit Reading" : "Reading Mode"}
+      </span>
+       <span className="sr-only">
+        Toggle distraction-free reading mode
       </span>
     </button>
   );
