@@ -2,7 +2,36 @@ import React, { useState, useMemo } from "react";
 import mockPosts from "../store/mockPosts";
 import PostCard from "../components/PostCard";
 import SearchModal from "../components/SearchModal";
-
+import { Helmet } from "react-helmet-async";
+const seoData = {
+  title: "Software Engineering Blog | React, JavaScript, Vitest & Web Development",
+  description: "Explore practical software engineering tutorials covering React, JavaScript, TypeScript, Node.js, Vitest, REST APIs, performance optimization, testing, and scalable full-stack web development.",
+  keywords: "React Blog, JavaScript Tutorials, TypeScript, Vitest, API Design, Performance Optimization, Node.js, Full Stack Development, Software Engineering",
+  url: "https://amanuel-portfolio-flame.vercel.app/blogs",
+  image: "https://amanuel-portfolio-flame.vercel.app/og-image.png",
+  siteName: "Amanuel Amare Engineering Blog"
+};
+const structuredData = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Blog",
+      "name": "Amanuel Amare Engineering Blog",
+      "url": seoData.url,
+      "description": seoData.description,
+      "author": {
+        "@type": "Person",
+        "name": "Amanuel Amare"
+      }
+    },
+    {
+      "@type": "CollectionPage",
+      "name": "Software Engineering Articles",
+      "url": seoData.url,
+      "description": seoData.description
+    }
+  ]
+};
 const BlogsPage = () => {
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState("All");
@@ -50,7 +79,38 @@ const BlogsPage = () => {
     }
   };
 
+  
   return (
+
+    <>
+    <Helmet>
+        <html lang="en" />
+        <title>{seoData.title}</title>
+        <meta name="description" content={seoData.description} />
+        <meta name="keywords" content={seoData.keywords} />
+        <meta name="robots" content="index, follow" />
+        <meta name="author" content="Amanuel Amare" />
+        <link rel="canonical" href={seoData.url} />
+
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content={seoData.title} />
+        <meta property="og:description" content={seoData.description} />
+        <meta property="og:image" content={seoData.image} />
+        <meta property="og:url" content={seoData.url} />
+        <meta property="og:site_name" content={seoData.siteName} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content="Software Engineering Blog Banner" />
+
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={seoData.title} />
+        <meta name="twitter:description" content={seoData.description} />
+        <meta name="twitter:image" content={seoData.image} />
+
+        <script type="application/ld+json">
+          {JSON.stringify(structuredData)}
+        </script>
+      </Helmet>
     <main className=" bg-white">
 
       <SearchModal
@@ -61,7 +121,7 @@ const BlogsPage = () => {
 
       <section className="max-w-6xl mx-auto px-6 pt-16 pb-14 text-center">
         <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-gray-400"
-          data-testid="blog-page-header"
+          data-testid="blog-page-header" role="img" aria-label="Sprout icon"
         >
           🌾 Blog & Resources
         </span>
@@ -81,6 +141,7 @@ const BlogsPage = () => {
             onClick={() => setIsSearchModalOpen(true)}
             className="w-full bg-white border border-gray-200 rounded-2xl px-6 py-4 shadow-sm hover:shadow-md hover:border-gray-300 transition-all flex items-center justify-between cursor-pointer"
             data-testid="blog-page-search-button"
+            aria-label="Search articles, tutorials, and resources"
             >
             <span className="text-gray-400">Search articles, tutorials, resources...</span>
             <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -115,6 +176,8 @@ const BlogsPage = () => {
                     : "bg-gray-50 border border-gray-200 text-gray-600 hover:bg-gray-100"
                   }`}
                   data-testid={`blog-page-category-${category}`}
+                  aria-pressed={selected}
+                  aria-label={`Filter posts by ${category}`}
               >
                 {category}
               </button>
@@ -171,8 +234,11 @@ const BlogsPage = () => {
         transition-all duration-300
         disabled:opacity-40
         disabled:cursor-not-allowed
+
       "
       data-testid="blog-page-pagination-prev"
+      data-testid="blog-page-pagination-prev"
+                aria-label="Go to previous page"
             >
               ← Prev
             </button>
@@ -198,6 +264,7 @@ const BlogsPage = () => {
                     }
           `}
                   data-testid={`blog-page-pagination-page-${page}`}
+                      aria-label={`Go to page ${page}`}
                 >
                   {page}
                 </button>
@@ -225,6 +292,7 @@ const BlogsPage = () => {
         disabled:cursor-not-allowed
       "
       data-testid="blog-page-pagination-next"
+      aria-label="Go to next page"
             >
               Next →
             </button>
@@ -235,6 +303,7 @@ const BlogsPage = () => {
 
 
     </main>
+    </>
   );
 };
 

@@ -12,7 +12,7 @@ test("checking the renders of Footer and links appearing correctly", async () =>
     );
 
     const footer = screen.getByTestId("footer");
-    const footerNav= screen.getByTestId("footer-navigation");
+    const footerNav = screen.getByTestId("footer-navigation");
     const logo = screen.getByText("Amanuel's Blog");
     const Home = screen.getByText("Home");
     const Blogs = screen.getByText("Blogs");
@@ -32,21 +32,21 @@ test("checking the renders of Footer and links appearing correctly", async () =>
 
 });
 test("accessibility and existence of footer social icons", () => {
-  render(
-    <MemoryRouter>
-      <Footer />
-    </MemoryRouter>
-  );
+    render(
+        <MemoryRouter>
+            <Footer />
+        </MemoryRouter>
+    );
 
-  const github = screen.getByRole("link", { name: /github profile/i });
-  const linkedin = screen.getByRole("link", { name: /linkedin profile/i });
-  const email = screen.getByRole("link", { name: /email address/i });
-  const portfolio = screen.getByRole("link", { name: /personal portfolio/i });
+    const github = screen.getByRole("link", { name: /github profile/i });
+    const linkedin = screen.getByRole("link", { name: /linkedin profile/i });
+    const email = screen.getByRole("link", { name: /email address/i });
+    const portfolio = screen.getByRole("link", { name: /personal portfolio/i });
 
-  expect(github).toBeInTheDocument();
-  expect(linkedin).toBeInTheDocument();
-  expect(email).toBeInTheDocument();
-  expect(portfolio).toBeInTheDocument();
+    expect(github).toBeInTheDocument();
+    expect(linkedin).toBeInTheDocument();
+    expect(email).toBeInTheDocument();
+    expect(portfolio).toBeInTheDocument();
 });
 
 
@@ -54,14 +54,14 @@ test("test footer links render with correct paths", () => {
     render(
         <MemoryRouter>
 
-            <Footer/>
+            <Footer />
         </MemoryRouter>
     );
     const homeLink = screen.getByRole("link", { name: "Home" });
     const aboutLink = screen.getByRole("link", { name: "About" });
     const blogsLink = screen.getByRole("link", { name: "Blogs" });
 
-    const contactLink = screen.getByRole("link", { name: "Contact Me" });
+    const contactLink = screen.getByText( "Contact Me");
     expect(homeLink).toBeInTheDocument();
     expect(aboutLink).toBeInTheDocument();
     expect(blogsLink).toBeInTheDocument();
@@ -78,31 +78,31 @@ test("test footer social media links  render with correct paths", () => {
     render(
         <MemoryRouter>
 
-            <Footer/>
+            <Footer />
         </MemoryRouter>
     );
     const github = screen.getByRole("link", { name: /github profile/i });
-  const linkedin = screen.getByRole("link", { name: /linkedin profile/i });
-  const email = screen.getByRole("link", { name: /email address/i });
-  const portfolio = screen.getByRole("link", { name: /personal portfolio/i });
+    const linkedin = screen.getByRole("link", { name: /linkedin profile/i });
+    const email = screen.getByRole("link", { name: /email address/i });
+    const portfolio = screen.getByRole("link", { name: /personal portfolio/i });
 
-    const contactLink = screen.getByRole("link", { name: "Contact Me" });
-    
+    const contactLink = screen.getByText("Contact Me");
+
 
     expect(contactLink).toHaveAttribute("href", "/contact");
 });
-test("Test the existance of paths and opened in the new tab",()=>{
+test("Test the existance of paths and opened in the new tab", () => {
     render(<MemoryRouter>
-        <Footer/>
+        <Footer />
     </MemoryRouter>);
-const github=screen.getByRole("link",{name:/github/i});
-const linkedin=screen.getByRole("link",{name:/linkedin/i});
-const mail=screen.getByRole("link",{name:/Email/i});
+    const github = screen.getByRole("link", { name: /github/i });
+    const linkedin = screen.getByRole("link", { name: /linkedin/i });
+    const mail = screen.getByRole("link", { name: /Email/i });
 
-expect(github).toHaveAttribute("href","https://github.com/amanuel1221");
-expect(linkedin).toHaveAttribute("href","https://linkedin.com/in/amanuel-amare-684234372");
-expect(mail).toHaveAttribute("href","mailto:amanuelamare1227@gmail.com");
-expect(github).toHaveAttribute("target","_blank");
-expect(linkedin).toHaveAttribute("target","_blank");
+    expect(github).toHaveAttribute("href", "https://github.com/amanuel1221");
+    expect(linkedin).toHaveAttribute("href", "https://linkedin.com/in/amanuel-amare-684234372");
+    expect(mail).toHaveAttribute("href", "mailto:amanuelamare1227@gmail.com");
+    expect(github).toHaveAttribute("target", "_blank");
+    expect(linkedin).toHaveAttribute("target", "_blank");
 
 });

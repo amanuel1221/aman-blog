@@ -96,10 +96,11 @@ const Contact = () => {
 
   return (
     <section id="contact" className="bg-[#f2f6fd] py-24 px-4 flex flex-col items-center"
+    data-testid="contact-section"
       itemScope 
       itemType="https://schema.org/ContactPage" >
       <div className="text-center mb-16">
-        <h1 className="text-4xl font-bold" itemProp="headline">Let's Work Together</h1>
+        <h1 className="text-4xl font-bold" itemProp="headline" >Let's Work Together</h1>
         <p className="text-gray-500 mt-3">
           Have a project in mind or just want to say hello?
         </p>
@@ -124,7 +125,7 @@ const Contact = () => {
               <FaMapMarkerAlt className="text-blue-500" />
               <span itemProp="addressCountry">Ethiopia</span>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3" data-testid="contact-availability">
               <FaCheckCircle className="text-green-500" />
               <span>Availability: Open to opportunities</span>
             </div>

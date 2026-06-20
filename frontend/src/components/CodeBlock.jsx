@@ -1,29 +1,38 @@
-import { useState } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import { FaCopy, FaCheck } from "react-icons/fa";
 
 export default function CodeBlock({ children, language = "code" }) {
   const [copied, setCopied] = useState(false);
 
-  const code = String(children).replace(/\n$/, "");
+   const code = useMemo(() => {
+    return String(children || "").replace(/\n$/, "");
+  }, [children]);
 
-  const copyCode = async () => {
+  const copyCode = useCallback(async () => {
     try {
+      if (!navigator?.clipboard) return;
+
       await navigator.clipboard.writeText(code);
       setCopied(true);
-
-      setTimeout(() => setCopied(false), 2000);
     } catch (err) {
       console.error("Copy failed", err);
     }
-  };
+  }, [code]);
+   useEffect(() => {
+    if (!copied) return;
+
+    const timer = setTimeout(() => setCopied(false), 2000);
+    return () => clearTimeout(timer);
+  }, [copied]);
 
   return (
-    <div className="relative my-8 group rounded-2xl border border-gray-800 bg-gray-950 shadow-xl overflow-hidden"
-    data-testid="code-block">
+    <figure className="relative my-8 group rounded-2xl border border-gray-800 bg-gray-950 shadow-xl overflow-hidden"
+    data-testid="code-block"
+    aria-label={`${language} code snippet`}>
      
       <div className="flex items-center justify-between px-4 py-2 bg-gray-900/60 border-b border-gray-800" 
        data-testid="code-block-header">
-        <span className="text-xs text-gray-400 uppercase tracking-wider">
+        <span className="text-xs text-gray-400 uppercase tracking-wider" aria-hidden="true">
           {language}
         </span>
 
@@ -33,8 +42,11 @@ export default function CodeBlock({ children, language = "code" }) {
           bg-gray-800 hover:bg-gray-700 transition-all duration-200 cursor-alias
           text-white active:scale-95"
            data-testid="copy-code-button"
+           ria-label={
+            copied ? "Code copied to clipboard" : "Copy code to clipboard"
+          }
         >
-          {copied ? <FaCheck /> : <FaCopy />}
+          {copied ? <FaCheck aria-hidden="true"/> : <FaCopy aria-hidden="true"/>}
           {copied ? "Copied!" : "Copy"}
         </button>
       </div>
@@ -49,6 +61,6 @@ export default function CodeBlock({ children, language = "code" }) {
 
    
       <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition pointer-events-none bg-gradient-to-r from-purple-500/5 to-cyan-500/5" />
-    </div>
+    </figure>
   );
 }

@@ -8,7 +8,7 @@ const SearchModal = ({ open, onClose }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
 
-  
+
   const categories = useMemo(() => {
     return [...new Set(mockPosts.map((post) => post.category))];
   }, []);
@@ -42,7 +42,7 @@ const SearchModal = ({ open, onClose }) => {
     return results;
   }, [searchTerm, selectedCategory]);
 
- 
+
   useEffect(() => {
     if (open) {
       setSearchTerm("");
@@ -88,7 +88,7 @@ const SearchModal = ({ open, onClose }) => {
         onClick={(e) => e.stopPropagation()}
         data-testid="search-modal-content"
       >
-       
+
         <div className="sticky top-0 bg-white/95 backdrop-blur-md border-b border-gray-100 p-6 z-10">
           <div className="flex items-center justify-between mb-4">
             <h2
@@ -109,11 +109,15 @@ const SearchModal = ({ open, onClose }) => {
             </button>
           </div>
 
-         
+
           <div className="grid md:grid-cols-3 gap-4">
             <div className="md:col-span-2">
               <input
-                type="text"
+                type="search"
+                type="search"
+                name="search"
+                autoComplete="off"
+                enterKeyHint="search"
                 placeholder="Search by title, author, category, content..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -129,14 +133,14 @@ const SearchModal = ({ open, onClose }) => {
             />
           </div>
 
-          <p className="mt-3 text-sm text-gray-500 font-medium">
+          <p className="mt-3 text-sm text-gray-500 font-medium" aria-live="polite">
             {filteredPosts.length}{" "}
             {filteredPosts.length === 1 ? "result" : "results"} found
           </p>
         </div>
 
 
-        
+
         <div className="p-6 bg-gray-50/30 min-h-[350px]" data-testid="search-modal-results">
           {filteredPosts.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -147,9 +151,12 @@ const SearchModal = ({ open, onClose }) => {
                 >
                   <div className="relative aspect-[16/10] bg-gray-100 overflow-hidden">
                     <img
-                      src={post.image}
-                      alt={post.title}
+                      src={post.coverImage}
+                                            alt={`${post.title} - ${post.category} article`}
+
                       className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+loading="lazy"
+decoding="async"
                     />
 
                     <span className="absolute top-3 left-3 bg-blue-600 text-white text-xs font-semibold px-2.5 py-1 rounded-md shadow-sm">
@@ -160,9 +167,9 @@ const SearchModal = ({ open, onClose }) => {
                   <div className="flex flex-col flex-grow p-5">
                     <div className="flex items-center gap-2 mb-3 text-sm text-gray-500">
                       <FaUserCircle className="text-gray-400" />
-                      <span>{post.author}</span>
+                      <span>{post.author?.name || post.author}</span>
                       <span>•</span>
-                      <span>{post.date}</span>
+                      <time dateTime={post.date}>{post.date}</time>
                       <span>•</span>
                       <span>{post.readTime}</span>
                     </div>

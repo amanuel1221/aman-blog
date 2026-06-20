@@ -11,18 +11,18 @@ const Footer = () => {
       : "nav-link text-gray-700 hover:text-blue-600 transition-colors duration-300";
 
   return (
-    <footer className="w-full bg-theme-light py-6 border-t border-gray-200 mt-20"  data-testid="footer">
+    <footer className="w-full bg-theme-light py-6 border-t border-gray-200 mt-20"  data-testid="footer"aria-label="Site footer">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-16 flex flex-col md:flex-row justify-between items-center gap-6 pb-6" >
 
 
         <div className="flex items-center" aria-label="Amanuel's Blog Logo">
           <NavLink to="/" className="font-bold text-xl lg:text-2xl text-gray-900 hover:text-blue-600 transition-colors"
-          data-testid="footer-logo">
+          data-testid="footer-logo" aria-label="Go to homepage">
             Amanuel's Blog
           </NavLink>
         </div>
 
-        <nav aria-label="Footer Navigation" data-testid="footer-navigation">
+        <nav aria-label="Footer Navigation" data-testid="footer-navigation"  aria-label="Footer navigation links">
           <ul className="flex flex-row gap-6 md:gap-8 text-base font-medium items-center">
             <li>
               <NavLink to="/" end className={navLinkClass}
@@ -46,7 +46,7 @@ const Footer = () => {
         </nav>
 
 
-        <div className="flex items-center gap-4 flex-wrap justify-center"  data-testid="footer-social-links">
+        <div className="flex items-center gap-4 flex-wrap justify-center"  data-testid="footer-social-links" aria-label="Social media links">
 
           <a
             href="https://github.com/amanuel1221"
@@ -87,7 +87,7 @@ const Footer = () => {
 
 
           <a
-            href="https://your-portfolio.com"
+            href="https://amanuel-portfolio-flame.vercel.app"
             target="_blank"
             rel="noopener noreferrer"
             className="w-10 h-10 flex items-center justify-center rounded-lg border border-gray-300 text-gray-700 hover:text-blue-600 hover:border-blue-600 transition-all duration-300"
@@ -103,6 +103,7 @@ const Footer = () => {
             to="/contact"
             className="border border-black text-black hover:bg-black hover:text-white font-semibold py-2 px-4 rounded transition-all duration-300 text-sm"
             data-testid="footer-contact"
+             aria-label="Go to contact page"
           >
             Contact Me
           </NavLink>
@@ -110,7 +111,7 @@ const Footer = () => {
       </div>
 
 
-      <div className="border-t border-gray-200/60 pt-4 text-center text-sm text-gray-500" data-testid="footer-copyright">
+      <div className="border-t border-gray-200/60 pt-4 text-center text-sm text-gray-500" data-testid="footer-copyright" >
         <p>© {new Date().getFullYear()} Amanuel Amare. All rights reserved.</p>
       </div>
     </footer>

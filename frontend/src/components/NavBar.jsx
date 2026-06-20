@@ -17,40 +17,42 @@ const NavBar = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
 
-  useEffect(() => {
+useEffect(() => {
+    const root = document.documentElement;
+
     if (darkMode) {
-      document.documentElement.classList.add("dark");
+      root.classList.add("dark");
       localStorage.setItem("theme", "dark");
     } else {
-      document.documentElement.classList.remove("dark");
+      root.classList.remove("dark");
       localStorage.setItem("theme", "light");
     }
   }, [darkMode]);
 
 
-  useEffect(() => {
+   useEffect(() => {
     document.body.style.overflow = isMenuOpen ? "hidden" : "auto";
-    return () => {
-      document.body.style.overflow = "auto";
-    };
+    return () => (document.body.style.overflow = "auto");
   }, [isMenuOpen]);
 
+ useEffect(() => {
+    let lastScroll = 0;
 
-  useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
 
-      setLastScrollY((prevScrollY) => {
-        if (currentScrollY > prevScrollY && currentScrollY > 80) {
-          setShowNav(false);
-        } else {
-          setShowNav(true);
-        }
-        return currentScrollY;
-      });
+      if (currentScrollY > lastScroll && currentScrollY > 80) {
+        setShowNav(false);
+      } else {
+        setShowNav(true);
+      }
+
+      lastScroll = currentScrollY;
+      setLastScrollY(currentScrollY);
     };
 
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
@@ -66,17 +68,20 @@ const NavBar = () => {
       ${showNav ? "translate-y-0" : "-translate-y-full"}
       bg-white text-gray-900`}
        data-testid="navbar-header"
+       aria-label="Main site navigation"
       >
         <nav
           className="flex justify-between items-center p-4 lg:px-16"
-          aria-label="Main Navigation"
+          aria-label="Primary navigation"
         data-testid="navbar-nav"
+        
 
         >
 
           <div className="flex items-center">
             <NavLink to="/" className="font-bold lg:text-2xl text-gray-900"
-             data-testid="navbar-logo">
+             data-testid="navbar-logo"
+              aria-label="Go to homepage">
               Amanuel's Blog
             </NavLink>
           </div>
@@ -86,7 +91,7 @@ datatype="navbar-mobile-search-toggle">
   <button
     onClick={() => setIsSearchOpen(true)}
     className="p-2 rounded-full text-gray-700 hover:bg-gray-100 transition"
-    aria-label="Search"
+    aria-label="Open search"
      data-testid="navbar-mobile-search"
   >
     <HiOutlineSearch className="text-2xl" />
@@ -94,20 +99,20 @@ datatype="navbar-mobile-search-toggle">
 
   <button
     onClick={() => setDarkMode(!darkMode)}
+     data-testid="navbar-mobile-search"
     className="p-2 rounded-full hover:bg-gray-200 transition-colors"
     aria-label="Toggle Dark/Light Mode"
-    data-testid="navbar-mobile-toggle-dark-mode"
   >
     {darkMode ? (
-      <HiSun className="text-yellow-500 w-6 h-6" data-testid="navbar-mobile-toggle-dark-mode-sun" />
+      <HiSun className="text-yellow-500 w-6 h-6" data-testid="navbar-mobile-toggle-dark-mode-sun" aria-hidden="true"/>
     ) : (
-      <HiMoon className="text-gray-800 w-6 h-6" data-testid="navbar-mobile-toggle-dark-mode-moon" />
+      <HiMoon className="text-gray-800 w-6 h-6" data-testid="navbar-mobile-toggle-dark-mode-moon" aria-hidden="true" />
     )}
   </button>
 </div>
 
 
-          <ul className="hidden lg:flex gap-8 text-lg font-medium items-center"  data-testid="desktop-navs">
+          <ul className="hidden lg:flex gap-8 text-lg font-medium items-center"  data-testid="desktop-navs" aria-label="Site pages">
             <li>
               <NavLink to="/" end className={navLinkClass}
               data-testid="desktop-home">
@@ -133,10 +138,10 @@ datatype="navbar-mobile-search-toggle">
   <button
     onClick={() => setIsSearchOpen(true)}
     className="p-2 rounded-full text-gray-700 hover:bg-gray-100 transition"
-    aria-label="Search"
+    aria-label="Open search"
     data-testid="desktop-search"
   >
-    <HiOutlineSearch className="text-2xl" />
+    <HiOutlineSearch className="text-2xl" aria-hidden="true"/>
   </button>
 
   <button
@@ -144,6 +149,8 @@ datatype="navbar-mobile-search-toggle">
     className="p-2 rounded-full hover:bg-gray-200 transition-colors"
     aria-label="Toggle Dark/Light Mode"
     data-testid="desktop-toggle-dark-mode"
+    aria-label="Toggle theme"
+
   >
     {darkMode ? (
       <HiSun className="text-yellow-500 w-6 h-6" data-testid="desktop-toggle-dark-mode-sun" />
@@ -156,6 +163,7 @@ datatype="navbar-mobile-search-toggle">
     to="/contact"
     className="hover:bg-black text-black hover:text-white font-bold py-1.5 px-2 rounded transition-colors z-10 border border-black"
     data-testid="desktop-contact"
+    aria-label="Contact page"
   >
     Contact Me
   </NavLink>
@@ -183,7 +191,7 @@ datatype="navbar-mobile-search-toggle">
 
 
         {isMenuOpen && (
-          <div className="fixed inset-0 z-[999] bg-white flex flex-col items-center justify-center gap-6 min-h-screen overflow-y-auto animate-in fade-in duration-200 lg:hidden">
+          <div className="fixed inset-0 z-[999] bg-white flex flex-col items-center justify-center gap-6 min-h-screen overflow-y-auto animate-in fade-in duration-200 lg:hidden"  aria-label="Mobile navigation menu">
 
             <ul className="flex flex-col gap-8 text-2xl font-medium items-center w-full"
             data-testid="mobile-navs">
@@ -227,17 +235,20 @@ datatype="navbar-mobile-search-toggle">
                 className="p-3 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
                 aria-label="Toggle Dark/Light Mode"
                 data-testid="mobile-toggle-dark-mode"
+                aria-label="Toggle theme"
+                onClick={() => setIsMenuOpen(false)}
               >
                 {darkMode ? (
-                  <HiSun className="text-yellow-500 w-8 h-8"  data-testid="mobile-toggle-dark-mode-sun"/>
+                  <HiSun className="text-yellow-500 w-8 h-8"  data-testid="mobile-toggle-dark-mode-sun" aria-hidden="true"/>
                 ) : (
-                  <HiMoon className="text-gray-800 w-8 h-8" data-testid="mobile-toggle-dark-mode-moon" />
+                  <HiMoon className="text-gray-800 w-8 h-8" data-testid="mobile-toggle-dark-mode-moon"  aria-hidden="true"/>
                 )}
               </button>
 
               <NavLink
 
                 to="/contact"
+                onClick={() => setIsMenuOpen(false)}
 
                 className=" hover:bg-black text-black hover:text-white font-bold py-1.5 px-2 rounded transition-colors z-10 border border-black "
                 data-testid="mobile-contact"

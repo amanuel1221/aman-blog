@@ -23,11 +23,11 @@ const WhyReadMyBlog = () => {
     ];
 
     return (
-        <section className="w-full bg-white py-16 md:py-24 " data-testid="why-read-my-blog-section">
-            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <section className="w-full bg-white py-16 md:py-24 " data-testid="why-read-my-blog-section" aria-labelledby="why-read-blog-title">
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
 
-
-                <h2 className="text-3xl md:text-4xl font-bold text-gray-900" data-testid="why-read-my-blog-title">
+            <header className="text-center">
+                <h2 className="text-3xl md:text-4xl font-bold text-gray-900" data-testid="why-read-my-blog-title" id="why-read-blog-title">
                     Why Read My Blog
                 </h2>
 
@@ -35,7 +35,7 @@ const WhyReadMyBlog = () => {
                 <p className="mt-4 text-gray-600 max-w-2xl mx-auto" data-testid="why-read-my-blog-description">
                     Learn froThis blog is based on real engineering experience from building fullstack applications.
 
-Every post is practical — focused on solving real problems in React, Node.js, performance optimization, and testing.m practical experiences, real projects, and lessons from my software engineering journey.
+Every post is practical — focused on solving real problems in <strong> React</strong>, <strong>Node.js</strong>, <strong>performance optimization</strong>, and testing practical experiences, real projects, and lessons from my software engineering journey.
                 </p>
 
 
@@ -56,7 +56,7 @@ Every post is practical — focused on solving real problems in React, Node.js, 
                         </div>
                     ))}
                 </div>
-
+</header>
             </div>
         </section>
     );
