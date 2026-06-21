@@ -60,9 +60,8 @@ const HomePage = () => {
           <WhatIWriteAbout />
         </Suspense>
 
-        <Suspense fallback={<StructureLoader />}>
-          <DevelopmentJourney />
-        </Suspense>
+      <WhyReadMyBlog />
+     
 
         <Suspense fallback={<StructureLoader />}>
           <WhyReadMyBlog />

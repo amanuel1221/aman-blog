@@ -1,4 +1,4 @@
-import React, { useState,useCallback } from "react";
+import React, { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 
 const AuthForm = ({ initialMode = "login" }) => {
@@ -9,47 +9,37 @@ const AuthForm = ({ initialMode = "login" }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
- const handleSubmit = useCallback(
-    (e) => {
-      e.preventDefault();
-
-      if (mode === "login") {
-        login(email, password);
-      } else {
-        signup(name, email, password);
-      }
-    },
-    [mode, email, password, name, login, signup]
-  );
-    const switchToSignup = useCallback(() => setMode("signup"), []);
-  const switchToLogin = useCallback(() => setMode("login"), []);
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (mode === "login") {
+      login(email, password);
+    } else {
+      signup(name, email, password);
+    }
+  };
 
   return (
-    <main className="max-w-md w-full mx-auto mt-24 p-8 bg-white border border-gray-100 rounded-3xl shadow-xl shadow-gray-100/50" data-testid="auth-form"
-     aria-labelledby="auth-title">
+    <div className="max-w-md w-full mx-auto mt-24 p-8 bg-white border border-gray-100 rounded-3xl shadow-xl shadow-gray-100/50" data-testid="auth-form">
       
-      <header className="mb-8 text-center">
-        <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-neutral-900 text-white font-black text-xl mb-4 shadow-sm" data-testid="auth-form-logo"
-        aria-hidden="true">
+      <div className="mb-8 text-center">
+        <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-neutral-900 text-white font-black text-xl mb-4 shadow-sm" data-testid="auth-form-logo">
           A
         </div>
-        <h1 className="text-2xl font-bold tracking-tight text-neutral-900" data-testid="auth-form-title" id="auth-title">
+        <h2 className="text-2xl font-bold tracking-tight text-neutral-900" data-testid="auth-form-title">
           {mode === "login" ? "Welcome back" : "Create your account"}
-        </h1>
-        <p className="text-sm text-neutral-500 mt-1.5" data-testid="auth-form-description">
+        </h2>
+        <p className="text-sm text-neutral-500 mt-1.5" data-testid="auth-form-description" data-testid="auth-form-description">
           {mode === "login" 
             ? "Enter your details to access your account and continue exploring our blog." 
             : "Join our community to explore and share knowledge in the world of software development."}
         </p>
-      </header>
+      </div>
 
-      <form onSubmit={handleSubmit} className="space-y-5" data-testid="auth-form-form"
-      noValidate
-      aria-label="Authentication form">
+      <form onSubmit={handleSubmit} className="space-y-5" data-testid="auth-form-form">
         
         {mode === "signup" && (
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold uppercase tracking-wider text-neutral-500" data-testid="auth-form-name-label" htmlFor="name">
+            <label className="text-xs font-semibold uppercase tracking-wider text-neutral-500" data-testid="auth-form-name-label">
               Full Name
             </label>
             <input
@@ -60,16 +50,12 @@ const AuthForm = ({ initialMode = "login" }) => {
               onChange={(e) => setName(e.target.value)}
               required
                 data-testid="auth-form-name-input"
-                autoComplete="name"
-                id="name"
-                name="name"
-                
             />
           </div>
         )}
 
         <div className="space-y-1.5">
-          <label className="text-xs font-semibold uppercase tracking-wider text-neutral-500" data-testid="auth-form-email-label" htmlFor="email">
+          <label className="text-xs font-semibold uppercase tracking-wider text-neutral-500" data-testid="auth-form-email-label">
             Email Address
           </label>
           <input
@@ -80,19 +66,16 @@ const AuthForm = ({ initialMode = "login" }) => {
             onChange={(e) => setEmail(e.target.value)}
             required
             data-testid="auth-form-email-input"
-            autoComplete="email"
-            id="email"
-            name="email"
           />
         </div>
 
         <div className="space-y-1.5">
           <div className="flex justify-between items-center">
-            <label className="text-xs font-semibold uppercase tracking-wider text-neutral-500" data-testid="auth-form-password-label" htmlFor="password">
+            <label className="text-xs font-semibold uppercase tracking-wider text-neutral-500" data-testid="auth-form-password-label">
               Password
             </label>
             {mode === "login" && (
-              <a href="#forgot" className="text-xs text-neutral-500 hover:text-neutral-900 underline underline-offset-4 transition-colors" aria-label="Forgot password link">
+              <a href="#forgot" className="text-xs text-neutral-500 hover:text-neutral-900 underline underline-offset-4 transition-colors">
                 Forgot password?
               </a>
             )}
@@ -105,9 +88,6 @@ const AuthForm = ({ initialMode = "login" }) => {
             onChange={(e) => setPassword(e.target.value)}
             required
             data-testid="auth-form-password-input"
-            autoComplete={mode === "login" ? "current-password" : "new-password"}
-            id="password"
-            name="password"
           />
         </div>
 
@@ -120,7 +100,7 @@ const AuthForm = ({ initialMode = "login" }) => {
         </button>
       </form>
 
-      <footer className="mt-8 pt-6 border-t border-neutral-100 text-center text-sm text-neutral-500" data-testid="auth-form-footer">
+      <div className="mt-8 pt-6 border-t border-neutral-100 text-center text-sm text-neutral-500" data-testid="auth-form-footer">
         {mode === "login" ? (
           <>
             New to our blog?{" "}
@@ -144,9 +124,9 @@ const AuthForm = ({ initialMode = "login" }) => {
             </button>
           </>
         )}
-      </footer>
+      </div>
 
-    </main>
+    </div>
   );
 };
 

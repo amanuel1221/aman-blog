@@ -77,7 +77,7 @@ const PostComments = ({ postId }) => {
   };
 
   return (
-    <section className="w-full max-w-3xl mx-auto pt-12 border-t border-gray-100 mt-14" data-testid="post-comments" aria-labelledby="comments-heading">
+    <div className="w-full max-w-3xl mx-auto pt-12 border-t border-gray-100 mt-14" data-testid="post-comments">
     
       <div className="flex justify-between items-center mb-6">
         <h3 className="text-xl font-black text-gray-900 tracking-tight" data-testid="post-comments-length"  id="comments-heading">
@@ -90,8 +90,8 @@ const PostComments = ({ postId }) => {
     Sign in to leave comments and participate in discussions.
   </div>
 )}
-      <form onSubmit={handleAddRootComment} className="mb-12 flex gap-4 items-start" aria-label="Comment submission form">
-        <div className="w-10 h-10 rounded-full bg-gray-900 text-white flex items-center justify-center font-bold text-sm shrink-0" aria-label="Current user avatar">
+      <form onSubmit={handleAddRootComment} className="mb-12 flex gap-4 items-start">
+        <div className="w-10 h-10 rounded-full bg-gray-900 text-white flex items-center justify-center font-bold text-sm shrink-0">
           {currentUserName ? currentUserName[0].toUpperCase() : "U"}
         </div>
 
