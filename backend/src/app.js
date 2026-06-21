@@ -4,6 +4,7 @@ const cookieParser = require("cookie-parser");
 require("dotenv").config();
 
 const app = express();
+const authRoutes=require("./routes/authRoutes.js");
 
 
 
@@ -17,6 +18,8 @@ app.use(
     credentials: true,
   })
 );
+
+app.use("/auth", authRoutes);
 
 app.get("/", (req, res) => {
   res.status(200).json({
