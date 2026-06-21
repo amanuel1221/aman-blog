@@ -77,7 +77,7 @@ const PostComments = ({ postId }) => {
   };
 
   return (
-    <div className="w-full max-w-3xl mx-auto pt-12 border-t border-gray-100 mt-14" data-testid="post-comments">
+    <section className="w-full max-w-3xl mx-auto pt-12 border-t border-gray-100 mt-14" data-testid="post-comments">
     
       <div className="flex justify-between items-center mb-6">
         <h3 className="text-xl font-black text-gray-900 tracking-tight" data-testid="post-comments-length"  id="comments-heading">
