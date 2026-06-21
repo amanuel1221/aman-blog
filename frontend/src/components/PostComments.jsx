@@ -80,7 +80,7 @@ const PostComments = ({ postId }) => {
     <div className="w-full max-w-3xl mx-auto pt-12 border-t border-gray-100 mt-14" data-testid="post-comments">
     
       <div className="flex justify-between items-center mb-6">
-        <h3 className="text-xl font-black text-gray-900 tracking-tight" data-testid="post-comments-length">
+        <h3 className="text-xl font-black text-gray-900 tracking-tight" data-testid="post-comments-length"  id="comments-heading">
           {allComments.length} Responses
         </h3>
       </div>
@@ -100,8 +100,10 @@ const PostComments = ({ postId }) => {
             rows="3"
             value={rootCommentText}
             onChange={(e) => setRootCommentText(e.target.value)}
+            aria-label="Comment filled area"
             placeholder="What are your thoughts on this article?..."
             className="w-full border border-gray-200 rounded-2xl p-4 text-gray-800 placeholder-gray-400 bg-white focus:outline-none focus:border-gray-400 text-sm md:text-base resize-none shadow-sm"
+            autoComplete="off"
           />
 
           <button
@@ -115,7 +117,8 @@ const PostComments = ({ postId }) => {
         </div>
       </form>
 
-      <div className="space-y-6">
+      <div className="space-y-6"  role="feed"
+  aria-label="Article comments">
         {rootComments.map((comment) => (
           <CommentItem
             key={comment._id}
@@ -134,7 +137,7 @@ const PostComments = ({ postId }) => {
           </p>
         )}
       </div>
-    </div>
+    </section>
   );
 };
 
