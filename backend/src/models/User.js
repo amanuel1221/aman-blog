@@ -33,7 +33,7 @@ const userSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
-console.log("USERS MODEL FILE LOADED");
+
 
 const User = mongoose.model("User", userSchema);
 
