@@ -1,19 +1,14 @@
 const bcrypt = require("bcryptjs");
-
-console.log(require.resolve("../models/User.js"));
 const User = require("../models/User.js");
 const generateToken = require("../utils/generateToken.js");
-
-
-
-
+const {validateRegisterInput,validateLoginInput}=require("../validators/auth.validator.js");
 
 
 const registerUser = async (userData) => {
 
 
     const { name, email, password} = userData;
-
+  validateRegisterInput({ name, email, password });
 
     const existingUser = await User.findOne({ email });
 
@@ -51,7 +46,7 @@ const registerUser = async (userData) => {
 
 
 const loginUser = async (email, password) => {
-    
+    validateLoginInput(email, password);
     const user = await User.findOne({ email }).select("+password");
 
     if (!user) {
