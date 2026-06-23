@@ -4,11 +4,6 @@ const { protect } = require("../middlewares/authMiddlewares");
 const commentController = require("../controllers/commentControllers");
 
 
-
-
-
-
-
 router.post(
   "/posts/:postId/comments",
   protect,

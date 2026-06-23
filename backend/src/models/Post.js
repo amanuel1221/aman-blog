@@ -46,7 +46,7 @@ const postSchema = new mongoose.Schema(
         coverImage: {
             type: String,
             default: "",
-            required: true,
+            
         },
 
         tags: {

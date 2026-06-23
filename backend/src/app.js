@@ -4,9 +4,9 @@ const cookieParser = require("cookie-parser");
 require("dotenv").config();
 
 const app = express();
-const authRoutes=require("./routes/authRoutes.js");
-const postRoutes=require("./routes/postRoutes.js");
-const commentRoutes=require("./routes/commentRoutes.js");
+const authRoutes = require("./routes/authRoutes.js");
+const postRoutes = require("./routes/postRoutes.js");
+const commentRoutes = require("./routes/commentRoutes.js");
 
 
 app.use(express.json());
@@ -22,7 +22,7 @@ app.use(
 
 app.use("/auth", authRoutes);
 app.use("/posts", postRoutes);
-app.use("/api",commentRoutes);
+app.use("/api", commentRoutes);
 
 app.get("/", (req, res) => {
   res.status(200).json({
@@ -30,5 +30,27 @@ app.get("/", (req, res) => {
     message: "API Running",
   });
 });
+
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    message: `Route not found: ${req.originalUrl}`,
+    hint: "Check /posts to get all posts",
+  });
+});
+
+app.use((err, req, res, next) => {
+  console.error("Error:", err);
+
+  res.status(err.statusCode || 500).json({
+    success: false,
+    message: err.message || "Internal Server Error",
+  });
+});
+
+
+
+
+
 
 module.exports = app;
