@@ -1,12 +1,14 @@
 const Post = require("../models/Post");
 const calculateReadTime = require("../utils/readTime");
+
+const { validateCreatePostInput,validateObjectId,validateUpdatePostInput }=require("../validators/post.validators");
+
 const createPost = async (postData, userId) => {
     const { title, excerpt, content, coverImage, tags = [], category } = postData;
 
 
-    if (!title || !content || !excerpt) {
-        throw new Error("Fields are are required");
-    }
+    validateCreatePostInput(postData);
+    validateObjectId(userId);
 
 
     const baseSlug = title
@@ -96,6 +98,8 @@ if (searchValue) {
 };
 
 const getPostBySlug = async (slug) => {
+   
+
     const post = await Post.findOne({ slug }).populate("author", "name email");
     if (!post) {
         throw new Error("Post not found");
@@ -108,6 +112,7 @@ const getPostBySlug = async (slug) => {
 
 
 const incrementPostView = async (postId) => {
+     validateObjectId(postId);
     const post = await Post.findByIdAndUpdate(postId,
         {
             $inc: { views: 1 },
@@ -120,6 +125,10 @@ const incrementPostView = async (postId) => {
 
 
 const updatePost = async (postId, userId, updateData) => {
+    validateObjectId(postId);
+    validateObjectId(userId);
+
+    validateUpdatePostInput(updateData);
     const post = await Post.findById(postId);
 
     if (!post) {
@@ -171,6 +180,9 @@ const updatePost = async (postId, userId, updateData) => {
 };
 
 const deletePost = async (postId, userId) => {
+    validateObjectId(postId);
+    validateObjectId(userId);
+
     const post = await Post.findById(postId);
 
     if (!post) {
@@ -187,6 +199,8 @@ const deletePost = async (postId, userId) => {
     return true;
 };
 const toggleLikePost = async (postId, userId) => {
+    validateObjectId(postId);
+    validateObjectId(userId);
     const post = await Post.findById(postId);
     if (!post) {
         throw new Error("Post not found");
