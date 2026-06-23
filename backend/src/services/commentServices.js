@@ -1,13 +1,21 @@
 const Comment = require("../models/comment");
 const Post = require("../models/Post");
+const {
+  validateObjectId,
+  validateCommentContent
+} = require("../validators/comment.validators.js");
 
 const createComment = async (postId, userId, content, parentCommentId = null) => {
+  validateObjectId(postId);
+  validateObjectId(userId);
+  validateCommentContent(content);
   const post = await Post.findById(postId);
   if (!post) {
     throw new Error("Post not found");
   }
 
   if (parentCommentId) {
+    validateObjectId(parentCommentId);
     const parentComment = await Comment.findById(parentCommentId);
     if (!parentComment) {
       throw new Error("Parent comment not found");
@@ -32,6 +40,7 @@ const createComment = async (postId, userId, content, parentCommentId = null) =>
 };
 
 const getCommentsByPost = async (postId) => {
+  alidateObjectId(postId);
   const post = await Post.findById(postId);
   if (!post) {
     throw new Error("Post not found");
@@ -46,6 +55,9 @@ const getCommentsByPost = async (postId) => {
 };
 
 const updateComment = async (commentId, userId, content) => {
+  validateObjectId(commentId);
+  validateObjectId(userId);
+  validateCommentContent(content);
   const comment = await Comment.findById(commentId);
   if (!comment) {
     throw new Error("Comment not found");
@@ -62,6 +74,8 @@ const updateComment = async (commentId, userId, content) => {
 };
 
 const deleteComment = async (commentId, userId, userRole) => {
+  validateObjectId(commentId);
+  validateObjectId(userId);
   const comment = await Comment.findById(commentId);
   if (!comment) {
     throw new Error("Comment not found");
@@ -70,7 +84,7 @@ const deleteComment = async (commentId, userId, userRole) => {
   const isOwner = comment.author.toString() === userId.toString();
   const isAdmin = userRole === 'admin';
 
-  // Owner OR Admin can delete
+ 
   if (!isOwner && !isAdmin) {
     throw new Error("Not authorized to delete this comment");
   }
@@ -84,6 +98,8 @@ const deleteComment = async (commentId, userId, userRole) => {
   return true;
 };
 const toggleLikeComment = async (commentId, userId) => {
+  validateObjectId(commentId);
+validateObjectId(userId);
   const comment = await Comment.findById(commentId);
   if (!comment) {
     throw new Error("Comment not found");
