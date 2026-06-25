@@ -1,5 +1,6 @@
 const bcrypt = require("bcryptjs");
 const User = require("../models/User.js");
+const mongoose=require("mongoose");
 const generateToken = require("../utils/generateToken.js");
 const {validateRegisterInput,validateLoginInput}=require("../validators/auth.validator.js");
 
@@ -77,20 +78,17 @@ const loginUser = async (email, password) => {
 
 
 const getProfile = async (userId) => {
-    const user = await User.findById(userId);
+  if (!mongoose.Types.ObjectId.isValid(userId)) {
+    throw new Error("User not found");
+  }
 
-    if (!user) {
-        throw new Error("User not found");
-    }
+  const user = await User.findById(userId);
 
-    return {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-      
-        role: user.role,
-        createdAt: user.createdAt,
-    };
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  return user;
 };
 
 module.exports = {
