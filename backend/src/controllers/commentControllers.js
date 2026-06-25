@@ -4,7 +4,7 @@ const createComment = async (req, res) => {
   try {
     const { postId } = req.params;
     const { content, parentCommentId } = req.body;
-    
+
     const comment = await commentService.createComment(
       postId,
       req.user._id,

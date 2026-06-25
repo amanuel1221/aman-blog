@@ -40,7 +40,7 @@ const createComment = async (postId, userId, content, parentCommentId = null) =>
 };
 
 const getCommentsByPost = async (postId) => {
-  alidateObjectId(postId);
+  validateObjectId(postId);
   const post = await Post.findById(postId);
   if (!post) {
     throw new Error("Post not found");
