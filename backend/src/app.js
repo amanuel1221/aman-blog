@@ -7,6 +7,7 @@ const app = express();
 const authRoutes = require("./routes/authRoutes.js");
 const postRoutes = require("./routes/postRoutes.js");
 const commentRoutes = require("./routes/commentRoutes.js");
+const contactRoutes = require("./routes/contactRoutes.js");
 
 
 app.use(express.json());
@@ -23,6 +24,7 @@ app.use(
 app.use("/auth", authRoutes);
 app.use("/posts", postRoutes);
 app.use("/api", commentRoutes);
+app.use("/api", contactRoutes);
 
 app.get("/", (req, res) => {
   res.status(200).json({
