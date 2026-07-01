@@ -60,6 +60,7 @@ By focusing on how users interact with the application, the test suite provides 
 - ✅ Search functionality testing
 - ✅ Comments system testing
 - ✅ Reactions (Like/Dislike) testing
+- ✅ Admin dashboard and post management page testing
 - ✅ Mock API support
 - ✅ Authentication mocking
 - ✅ High code coverage (91%+)
@@ -141,6 +142,13 @@ src/
 │ ├── BlogPage.test.jsx
 │ ├── ContactPage.test.jsx
 │ ├── DetailsPage.test.jsx
+│ ├── AdminDashboard.test.jsx
+│ ├── AdminPosts.test.jsx
+│ ├── AdminCreatePost.test.jsx
+│ ├── AdminEditPost.test.jsx
+│ ├── AdminMessages.test.jsx
+│ ├── AdminAnalytics.test.jsx
+│ └── AdminSettings.test.jsx
 │
 ├── components/
 │ ├── Navbar.test.jsx
@@ -197,6 +205,14 @@ Covered pages include:
 - Blog Page
 - Contact Page
 - Details Page
+- Admin Dashboard
+- Admin Posts
+- Admin Create/Edit Post flows
+- Admin Messages
+- Admin Analytics
+- Admin Settings
+
+Admin-specific test documentation is available under `src/tests/docs/pages/` with files such as `AdminDashboard.md`, `AdminPosts.md`, `AdminMessages.md`, `AdminAnalytics.md`, and `AdminSettings.md`.
 
 Typical checks:
 
@@ -518,4 +534,3 @@ The goal is not only to catch bugs but also to provide confidence that new featu
                └────────────────────┘
 
 
-Happy Testing! 🚀
