@@ -93,7 +93,14 @@ src/
 │   │   ├── HomePage.test.jsx
 │   │   ├── BlogPage.test.jsx
 │   │   ├── ContactPage.test.jsx
-│   │   └── DetailsPage.test.jsx
+│   │   ├── DetailsPage.test.jsx
+│   │   ├── AdminDashboard.test.jsx
+│   │   ├── AdminPosts.test.jsx
+│   │   ├── AdminCreatePost.test.jsx
+│   │   ├── AdminEditPost.test.jsx
+│   │   ├── AdminMessages.test.jsx
+│   │   ├── AdminAnalytics.test.jsx
+│   │   └── AdminSettings.test.jsx
 │   │
 │   ├── components/
 │   │   ├── Navbar.test.jsx
@@ -152,6 +159,12 @@ Integration tests verify that multiple components work together correctly within
 - Blog Page
 - Contact Page
 - Details Page
+- Admin Dashboard
+- Admin Posts
+- Admin Create/Edit Post flows
+- Admin Messages
+- Admin Analytics
+- Admin Settings
 
 ### Goals
 
@@ -397,6 +410,19 @@ Many components currently achieve **100% test coverage**, while the remaining co
 - Comments
 - Reactions
 - Sharing functionality
+
+---
+
+## Admin Pages
+
+- Admin dashboard page rendering
+- Admin post management page and action buttons
+- Admin create/edit post page flows
+- Admin messages inbox and stats
+- Admin analytics charts and summaries
+- Admin settings page and profile details
+
+Documentation for these tests is available in `src/tests/docs/pages/AdminDashboard.md`, `src/tests/docs/pages/AdminPosts.md`, `src/tests/docs/pages/AdminMessages.md`, `src/tests/docs/pages/AdminAnalytics.md`, and `src/tests/docs/pages/AdminSettings.md`.
 
 ---
 
