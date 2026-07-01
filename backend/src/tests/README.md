@@ -9,6 +9,7 @@ The tests in this folder focus on the core backend features of the application, 
 - Authentication flow
 - Post management
 - Comment management
+- Contact message handling
 - Input validation
 - Middleware behavior
 
@@ -42,6 +43,7 @@ Service-layer tests validate the core business logic for:
 - user login
 - post-related operations
 - comment-related operations
+- contact message creation and retrieval
 
 These tests check that the service behaves correctly for both happy paths and common failure cases.
 
@@ -55,6 +57,7 @@ Validation tests cover the request validation rules for authentication and other
 - missing fields are rejected
 - invalid email formats are rejected
 - password strength rules are enforced
+- contact form submissions are validated correctly
 
 ## Testing tools
 

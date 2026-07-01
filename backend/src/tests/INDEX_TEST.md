@@ -6,7 +6,7 @@ This file is the central guide for the backend test suite in this project. It he
 
 ## Overview
 
-The backend test suite is designed to verify the main application logic for authentication, posts, comments, validation, and middleware behavior. The tests aim to ensure that the backend remains reliable as features are added or changed.
+The backend test suite is designed to verify the main application logic for authentication, posts, comments, contact messages, validation, and middleware behavior. The tests aim to ensure that the backend remains reliable as features are added or changed.
 
 ---
 
@@ -53,12 +53,13 @@ These tests validate the core business logic for:
 - user login
 - post-related behavior
 - comment-related behavior
+- contact message creation and retrieval
 
 ### 3. Middleware Tests
 These tests verify that authentication and request protection logic behave correctly.
 
 ### 4. Validator Tests
-These tests confirm that invalid input is rejected and valid input is accepted.
+These tests confirm that invalid input is rejected and valid input is accepted, including contact form submissions.
 
 ---
 
