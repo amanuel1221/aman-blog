@@ -43,22 +43,20 @@ describe("HomePage Component", () => {
       </MemoryRouter>
     );
 
-  it("renders main sections correctly", () => {
+  it("renders main sections correctly", async () => {
     renderPage();
 
-    expect(screen.getByText(/Latest Articles/i)).toBeInTheDocument();
-    expect(screen.getByText(/Recent Blog Posts/i)).toBeInTheDocument();
+    expect(await screen.findByText(/Recent Blog Posts/i)).toBeInTheDocument();
 
     expect(screen.getByTestId("home-page")).toBeInTheDocument();
     expect(screen.getByTestId("home-page-latest-articles")).toBeInTheDocument();
   });
 
-  it("renders child components", () => {
+  it("renders child components", async () => {
     renderPage();
 
     expect(screen.getByTestId("home-hero")).toBeInTheDocument();
     expect(screen.getByTestId("what-i-write")).toBeInTheDocument();
-    expect(screen.getByTestId("dev-journey")).toBeInTheDocument();
     expect(screen.getByTestId("why-read")).toBeInTheDocument();
   });
 

@@ -60,7 +60,7 @@ const HomePage = () => {
           <WhatIWriteAbout />
         </Suspense>
 
-      <WhyReadMyBlog />
+    <DevelopmentJourney />
      
 
         <Suspense fallback={<StructureLoader />}>
