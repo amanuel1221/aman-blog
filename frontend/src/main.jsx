@@ -1,17 +1,21 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import { BrowserRouter } from 'react-router-dom' // Added missing import
-import './index.css'
-import App from './App.jsx'
-import { AuthProvider } from './context/AuthContext'; // Added missing import
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import { BrowserRouter } from "react-router-dom";
 
-createRoot(document.getElementById('root')).render(
+import "./index.css";
+import App from "./App.jsx";
+
+import { AuthProvider } from "./context/AuthContext";
+import { AdminAuthProvider } from "./context/AdminAuthContext"; // NEW
+
+createRoot(document.getElementById("root")).render(
   <StrictMode>
     <BrowserRouter>
-    <AuthProvider>
-      <App />
-       </AuthProvider>
+      <AuthProvider>
+        <AdminAuthProvider>
+          <App />
+        </AdminAuthProvider>
+      </AuthProvider>
     </BrowserRouter>
-   
   </StrictMode>
-)
+);
