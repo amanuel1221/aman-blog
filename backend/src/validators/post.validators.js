@@ -57,9 +57,13 @@ const validateCreatePostInput = ({
     }
 };
 
-const validateUpdatePostInput = (updateData) => {
-    if (!Object.keys(updateData).length) {
+const validateUpdatePostInput = (updateData, allowEmpty = false) => {
+    if (!Object.keys(updateData).length && !allowEmpty) {
         throw new Error("No update data provided");
+    }
+
+    if (!Object.keys(updateData).length) {
+        return;
     }
 
     if (
@@ -104,4 +108,4 @@ const validateObjectId = (id) => {
     }
 };
 
-module.exports={validateCreatePostInput,validateUpdatePostInput,validateObjectId};
+module.exports = { validateCreatePostInput, validateUpdatePostInput, validateObjectId };

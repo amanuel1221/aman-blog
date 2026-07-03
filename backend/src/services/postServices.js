@@ -1,15 +1,50 @@
 const Post = require("../models/Post");
 const calculateReadTime = require("../utils/readTime");
+const { deleteCloudinaryImage, uploadImage } = require("./cloudinaryService");
 
-const { validateCreatePostInput,validateObjectId,validateUpdatePostInput }=require("../validators/post.validators");
+const { validateCreatePostInput, validateObjectId, validateUpdatePostInput } = require("../validators/post.validators");
+const buildCoverImageData = async (file) => {
+    if (!file) return undefined;
 
-const createPost = async (postData, userId) => {
-    const { title, excerpt, content, coverImage, tags = [], category } = postData;
+    try {
+        const uploadResult = await uploadImage(file, "aman-blog/posts");
+
+        if (!uploadResult?.url || !uploadResult?.public_id) {
+            return undefined;
+        }
+
+        return uploadResult;
+    } catch (err) {
+        console.error("Cloudinary upload failed:", err.message);
+        return undefined; // NEVER crash post creation
+    }
+};
 
 
-    validateCreatePostInput(postData);
+
+
+
+
+const createPost = async (postData, userId, file) => {
+    const { title, excerpt, content, tags = [], category } = postData;
+
+    let parsedTags = tags;
+
+if (typeof parsedTags === "string") {
+  parsedTags = parsedTags.trim();
+
+  try {
+    parsedTags = JSON.parse(parsedTags);
+  } catch {
+    parsedTags = parsedTags
+      .split(",")
+      .map(tag => tag.trim())
+      .filter(Boolean);
+  }
+}
+
+    validateCreatePostInput({ title, excerpt, content, tags: parsedTags, category });
     validateObjectId(userId);
-
 
     const baseSlug = title
         .toLowerCase()
@@ -26,16 +61,17 @@ const createPost = async (postData, userId) => {
         counter++;
     }
     const readTime = calculateReadTime(content);
+    const coverImage = await buildCoverImageData(file);
     const post = await Post.create({
         title,
         slug,
         excerpt,
         content,
-        coverImage,
         category,
-        tags,
+        tags: parsedTags,
         author: userId,
         readTime,
+        ...(coverImage ? { coverImage } : {}),
     });
 
     return post;
@@ -124,11 +160,23 @@ const incrementPostView = async (postId) => {
 };
 
 
-const updatePost = async (postId, userId, updateData) => {
+const updatePost = async (postId, userId, updateData, file) => {
+
+
+    if (typeof updateData.tags === "string") {
+  try {
+    updateData.tags = JSON.parse(updateData.tags);
+  } catch {
+    updateData.tags = updateData.tags
+      .split(",")
+      .map(tag => tag.trim())
+      .filter(Boolean);
+  }
+}
     validateObjectId(postId);
     validateObjectId(userId);
 
-    validateUpdatePostInput(updateData);
+    validateUpdatePostInput(updateData, !!file);
     const post = await Post.findById(postId);
 
     if (!post) {
@@ -166,13 +214,19 @@ const updatePost = async (postId, userId, updateData) => {
         post.readTime = `${Math.max(1, Math.ceil(words / 200))} min read`;
     }
 
-    if (updateData.coverImage) {
-        post.coverImage = updateData.coverImage;
+    if (file) {
+        if (post.coverImage?.public_id) {
+            await deleteCloudinaryImage(post.coverImage.public_id);
+        }
+        post.coverImage = await buildCoverImageData(file);
     }
+
     if (updateData.category) {
         post.category = updateData.category;
     }
-    if (updateData.tags) { post.tags = updateData.tags; }
+    if (updateData.tags) {
+        post.tags = updateData.tags;
+    }
 
     await post.save();
 
@@ -193,6 +247,9 @@ const deletePost = async (postId, userId) => {
         throw new Error("Not authorized to delete this post");
     }
 
+    if (post.coverImage?.public_id) {
+        await deleteCloudinaryImage(post.coverImage.public_id);
+    }
 
     await Post.findByIdAndDelete(postId);
 

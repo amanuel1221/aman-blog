@@ -1,16 +1,13 @@
 
 const postService = require("../services/postServices");
 
-/*
-|--------------------------------------------------------------------------
-| Create Post
-|--------------------------------------------------------------------------
-*/
+
 const createPost = async (req, res) => {
   try {
     const post = await postService.createPost(
       req.body,
-      req.user._id
+      req.user._id,
+      req.file
     );
 
     res.status(201).json({
@@ -26,11 +23,7 @@ const createPost = async (req, res) => {
   }
 };
 
-/*
-|--------------------------------------------------------------------------
-| Get All Posts
-|--------------------------------------------------------------------------
-*/
+
 const getAllPosts = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
@@ -39,8 +32,7 @@ const getAllPosts = async (req, res) => {
 
     const result = await postService.getAllPosts(search, page, limit);
     
-    // Check if there are posts in the result
-    const posts = result.posts || result; // Depending on your service structure
+    const posts = result.posts || result; 
     const hasPosts = Array.isArray(posts) ? posts.length > 0 : false;
     
     if (!hasPosts) {
@@ -92,18 +84,13 @@ const incrementPostView = async (req, res) => {
         res.status(404).json({ success: false, message: error.message, });
      } };
 
-
-/*
-|--------------------------------------------------------------------------
-| Update Post
-|--------------------------------------------------------------------------
-*/
 const updatePost = async (req, res) => {
   try {
     const post = await postService.updatePost(
       req.params.id,
       req.user._id,
-      req.body
+      req.body,
+      req.file
     );
 
     res.status(200).json({
@@ -134,11 +121,7 @@ const updatePost = async (req, res) => {
     });
   }
 };
-/*
-|--------------------------------------------------------------------------
-| Delete Post
-|--------------------------------------------------------------------------
-*/
+
 const deletePost = async (req, res) => {
   try {
     await postService.deletePost(
