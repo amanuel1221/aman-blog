@@ -1,9 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-// ── Step 1: mock the module path so require() gets our object ─────────────────
 vi.mock("../../../services/postServices");
 
-// ── Step 2: grab the mocked module and attach vi.fn() to every method ─────────
+vi.mock("../../../services/cloudinaryService", () => ({
+  uploadImage: vi.fn(),
+  deleteCloudinaryImage: vi.fn(),
+}));
+
 const postService = require("../../../services/postServices");
 
 postService.createPost       = vi.fn();
@@ -14,7 +17,6 @@ postService.updatePost       = vi.fn();
 postService.deletePost       = vi.fn();
 postService.toggleLikePost   = vi.fn();
 
-// ── Step 3: now require the controller (it will receive the mocked service) ───
 const {
   createPost,
   getAllPosts,
@@ -25,7 +27,6 @@ const {
   toggleLikePost,
 } = require("../../../controllers/postControllers");
 
-// ── Shared req / res ──────────────────────────────────────────────────────────
 
 let req, res;
 
@@ -35,9 +36,6 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// createPost
-// ─────────────────────────────────────────────────────────────────────────────
 
 describe("createPost", () => {
   it("returns 201 and the created post", async () => {
@@ -47,7 +45,8 @@ describe("createPost", () => {
 
     await createPost(req, res);
 
-    expect(postService.createPost).toHaveBeenCalledWith({ title: "Hello" }, "user123");
+    expect(postService.createPost).toHaveBeenCalledWith({ title: "Hello" }, "user123",undefined);
+    
     expect(res.status).toHaveBeenCalledWith(201);
     expect(res.json).toHaveBeenCalledWith({
       success: true,
@@ -66,9 +65,6 @@ describe("createPost", () => {
   });
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// getAllPosts
-// ─────────────────────────────────────────────────────────────────────────────
 
 describe("getAllPosts", () => {
   it("returns 200 with posts when posts exist", async () => {
@@ -121,9 +117,6 @@ describe("getAllPosts", () => {
   });
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// getPostBySlug
-// ─────────────────────────────────────────────────────────────────────────────
 
 describe("getPostBySlug", () => {
   it("returns 200 with the post", async () => {
@@ -149,9 +142,6 @@ describe("getPostBySlug", () => {
   });
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// incrementPostView
-// ─────────────────────────────────────────────────────────────────────────────
 
 describe("incrementPostView", () => {
   it("returns 200 with updated view count", async () => {
@@ -176,9 +166,6 @@ describe("incrementPostView", () => {
   });
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// updatePost
-// ─────────────────────────────────────────────────────────────────────────────
 
 describe("updatePost", () => {
   it("returns 200 with updated post", async () => {
@@ -189,7 +176,7 @@ describe("updatePost", () => {
 
     await updatePost(req, res);
 
-    expect(postService.updatePost).toHaveBeenCalledWith("post123", "user123", { title: "Updated" });
+    expect(postService.updatePost).toHaveBeenCalledWith("post123", "user123", { title: "Updated" },undefined);
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith({
       success: true,
@@ -232,9 +219,6 @@ describe("updatePost", () => {
   });
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// deletePost
-// ─────────────────────────────────────────────────────────────────────────────
 
 describe("deletePost", () => {
   it("returns 200 on successful delete", async () => {
@@ -282,9 +266,6 @@ describe("deletePost", () => {
   });
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// toggleLikePost
-// ─────────────────────────────────────────────────────────────────────────────
 
 describe("toggleLikePost", () => {
   it("returns 200 with 'Post liked' when liked is true", async () => {

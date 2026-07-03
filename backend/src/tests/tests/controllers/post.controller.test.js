@@ -1,5 +1,10 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
+vi.mock("../../../services/postServices");
+vi.mock("../../../services/cloudinaryService", () => ({
+  uploadImage: vi.fn(),
+  deleteCloudinaryImage: vi.fn(),
+}));
 const postService = require("../../../services/postServices");
 
 const {
@@ -53,7 +58,8 @@ describe("Post Controller", () => {
       expect(postService.createPost)
         .toHaveBeenCalledWith(
           req.body,
-          req.user._id
+          req.user._id,
+          undefined
         );
 
       expect(res.status)

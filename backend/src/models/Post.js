@@ -44,9 +44,14 @@ const postSchema = new mongoose.Schema(
         },
 
         coverImage: {
-            type: String,
-            default: "",
-            
+            url: {
+                type: String,
+                default: "",
+            },
+            public_id: {
+                type: String,
+                default: "",
+            },
         },
 
         tags: {
