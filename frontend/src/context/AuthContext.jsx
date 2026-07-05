@@ -1,40 +1,97 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
+import {
+  loginUser,
+  registerUser,
+  logoutUser,
+  getCurrentUser,
+} from "../api/authApi";
 
 const AuthContext = createContext();
-
-const mockUser = {
-  id: "user_amanuel_123",
-  name: "Amanuel Amare",
-  email: "amanuel@test.com"
-};
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
 
+  const [loading, setLoading] = useState(true);
+
+  const [error, setError] = useState("");
+
   useEffect(() => {
-    const saved = localStorage.getItem("auth_user");
-    if (saved) setUser(JSON.parse(saved));
+    checkAuth();
   }, []);
 
-  const login = (email, password) => {
-    const loggedUser = mockUser; // later backend replaces this
-    setUser(loggedUser);
-    localStorage.setItem("auth_user", JSON.stringify(loggedUser));
+  const checkAuth = async () => {
+    try {
+      const { data } = await getCurrentUser();
+
+      if (data.success) {
+        setUser(data.user);
+      }
+    } catch (err) {
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const signup = (name, email, password) => {
-    const newUser = { ...mockUser, name, email };
-    setUser(newUser);
-    localStorage.setItem("auth_user", JSON.stringify(newUser));
-  };
+const login = async (email, password) => {
+  try {
+    const res = await loginUser({ email, password }); // ✅ FIXED
 
-  const logout = () => {
+    setUser(res.data.user);
+    localStorage.setItem("auth_user", JSON.stringify(res.data.user));
+
+    return {
+      success: true,
+      user: res.data.user,
+    };
+  } catch (err) {
+    return {
+      success: false,
+      message: err.response?.data?.message || "invalid Credintials",
+    };
+  }
+};
+const signup = async (name, email, password) => {
+  try {
+    const res = await registerUser({ name, email, password }); // ✅ FIXED
+
+    setUser(res.data.user);
+    localStorage.setItem("auth_user", JSON.stringify(res.data.user));
+
+    return {
+      success: true,
+      user: res.data.user,
+    };
+  } catch (err) {
+    return {
+      success: false,
+      message: err.response?.data?.message || "Signup failed",
+    };
+  }
+};
+const logout = async () => {
+  try {
+    await logoutUser(); // calls backend
+  } catch (err) {
+    console.log("Logout error:", err);
+  } finally {
     setUser(null);
     localStorage.removeItem("auth_user");
-  };
+  }
+};
 
   return (
-    <AuthContext.Provider value={{ user, login, signup, logout }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        error,
+        login,
+        signup,
+        logout,
+        isAuthenticated: !!user,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

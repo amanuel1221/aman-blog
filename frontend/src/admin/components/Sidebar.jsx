@@ -1,15 +1,7 @@
 import { useState } from "react";
 import { useNavigate, NavLink } from "react-router-dom";
-import { useAdminAuth } from "../../context/AdminAuthContext";
-import {
-  FiHome,
-  FiFileText,
-  FiMail,
-  FiBarChart2,
-  FiLogOut,
-  FiMenu,
-  FiX,
-} from "react-icons/fi";
+import { useAuth } from "../../context/AuthContext";
+import { FiHome, FiFileText, FiMail, FiBarChart2, FiLogOut, FiMenu, FiX, } from "react-icons/fi";
 
 const menuItems = [
   {
@@ -36,7 +28,7 @@ const menuItems = [
 
 const Sidebar = () => {
   const [open, setOpen] = useState(false);
-  const { admin, logoutAdmin } = useAdminAuth();
+  const { admin, logoutAdmin } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -46,7 +38,6 @@ const Sidebar = () => {
 
   return (
     <>
-      {/* ================= Mobile Menu Button ================= */}
 
       <button
         onClick={() => setOpen(true)}
@@ -56,8 +47,6 @@ const Sidebar = () => {
         <FiMenu size={22} />
       </button>
 
-      {/* ================= Overlay ================= */}
-
       {open && (
         <div
           onClick={() => setOpen(false)}
@@ -65,7 +54,6 @@ const Sidebar = () => {
         />
       )}
 
-      {/* ================= Sidebar ================= */}
 
       <aside
         data-testid="admin-sidebar"
@@ -94,7 +82,6 @@ const Sidebar = () => {
         lg:shadow-none
       `}
       >
-        {/* ================= Header ================= */}
 
         <div className="px-6 py-5 border-b">
           <div className="flex items-center justify-between gap-4">
@@ -115,7 +102,6 @@ const Sidebar = () => {
           </div>
         </div>
 
-        {/* ================= Navigation ================= */}
 
         <nav data-testid="admin-sidebar-nav" className="mt-6 px-3" aria-label="Admin navigation">
           {menuItems.map((item) => (
@@ -135,10 +121,9 @@ const Sidebar = () => {
                 mb-2
                 transition-all
 
-                ${
-                  isActive
-                    ? "bg-blue-600 text-white shadow"
-                    : "text-gray-600 hover:bg-slate-100 hover:text-blue-600"
+                ${isActive
+                  ? "bg-blue-600 text-white shadow"
+                  : "text-gray-600 hover:bg-slate-100 hover:text-blue-600"
                 }
               `
               }
@@ -151,8 +136,6 @@ const Sidebar = () => {
             </NavLink>
           ))}
         </nav>
-
-        {/* ================= Footer ================= */}
 
         <div className="absolute bottom-0 left-0 w-full border-t p-4">
           <button
