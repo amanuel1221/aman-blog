@@ -1,5 +1,7 @@
 import { useMemo, useState } from "react";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa";
+import { slugify } from "../utils/slugify";
+
 
 const TableOfContents = ({ content }) => {
   const [open, setOpen] = useState(false);
@@ -11,7 +13,7 @@ const TableOfContents = ({ content }) => {
     return matches.map((match) => ({
       level: match[1].length,
       text: match[2],
-      id: match[2].toLowerCase().replace(/\s+/g, "-"),
+      id: slugify(match[2]),
     }));
   }, [content]);
 
@@ -66,7 +68,6 @@ const TableOfContents = ({ content }) => {
           </ul>
         </div>
       </div>
-
 
         
       </nav>

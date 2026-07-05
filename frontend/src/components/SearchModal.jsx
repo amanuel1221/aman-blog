@@ -1,51 +1,24 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { NavLink } from "react-router-dom";
 import { FaTimes, FaUserCircle } from "react-icons/fa";
-import mockPosts from "../store/mockPosts";
+import { getPosts } from "../api/postApi";
 import CategoryFilter from "./categoryFilter";
 
 const SearchModal = ({ open, onClose }) => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedTerm, setDebouncedTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [categories, setCategories] = useState([]);
+  const [results, setResults] = useState([]);
+  const [loading, setLoading] = useState(false);
 
+  const requestIdRef = useRef(0);
 
-  const categories = useMemo(() => {
-    return [...new Set(mockPosts.map((post) => post.category))];
-  }, []);
-
-
-  const filteredPosts = useMemo(() => {
-    let results = [...mockPosts];
-
-    if (selectedCategory !== "All") {
-      results = results.filter(
-        (post) => post.category === selectedCategory
-      );
-    }
-
-    if (searchTerm.trim()) {
-      const lowerSearch = searchTerm.toLowerCase();
-
-      results = results.filter((post) => {
-        const searchableText = `
-          ${post.title}
-          ${post.excerpt}
-          ${post.content}
-          ${post.author}
-          ${post.category}
-        `.toLowerCase();
-
-        return searchableText.includes(lowerSearch);
-      });
-    }
-
-    return results;
-  }, [searchTerm, selectedCategory]);
-
-
+  // Reset on open/close
   useEffect(() => {
     if (open) {
       setSearchTerm("");
+      setDebouncedTerm("");
       setSelectedCategory("All");
       document.body.style.overflow = "hidden";
     } else {
@@ -57,6 +30,58 @@ const SearchModal = ({ open, onClose }) => {
     };
   }, [open]);
 
+  // Debounce raw input -> debouncedTerm
+  useEffect(() => {
+    const handle = setTimeout(() => setDebouncedTerm(searchTerm.trim()), 300);
+    return () => clearTimeout(handle);
+  }, [searchTerm]);
+
+  useEffect(() => {
+    if (!open) return;
+
+    const fetchCategories = async () => {
+      try {
+        const res = await getPosts(1, 1000);
+        const values = new Set((res.data.posts || []).map((p) => p.category).filter(Boolean));
+        setCategories(["All", ...Array.from(values)]);
+      } catch (err) {
+        console.error("Failed to load categories:", err);
+        setCategories(["All"]);
+      }
+    };
+
+    fetchCategories();
+  }, [open]);
+
+  // Fetch results whenever the debounced term or category changes
+  useEffect(() => {
+    if (!open) return;
+
+    const currentRequestId = ++requestIdRef.current;
+    setLoading(true);
+
+    const fetchResults = async () => {
+      try {
+        const res = await getPosts(
+          1,
+          20,
+          debouncedTerm,
+          selectedCategory !== "All" ? selectedCategory : ""
+        );
+        if (currentRequestId !== requestIdRef.current) return;
+
+        setResults(res.data.posts || []);
+      } catch (err) {
+        if (currentRequestId !== requestIdRef.current) return;
+        console.error("Search failed:", err);
+        setResults([]);
+      } finally {
+        if (currentRequestId === requestIdRef.current) setLoading(false);
+      }
+    };
+
+    fetchResults();
+  }, [open, debouncedTerm, selectedCategory]);
 
   useEffect(() => {
     const handleEsc = (e) => {
@@ -73,6 +98,9 @@ const SearchModal = ({ open, onClose }) => {
   }, [onClose]);
 
   if (!open) return null;
+
+
+
 
   return (
     <div
@@ -134,29 +162,29 @@ const SearchModal = ({ open, onClose }) => {
           </div>
 
           <p className="mt-3 text-sm text-gray-500 font-medium" aria-live="polite">
-            {filteredPosts.length}{" "}
-            {filteredPosts.length === 1 ? "result" : "results"} found
+            {results.length}{" "}
+            {results.length === 1 ? "result" : "results"} found
           </p>
         </div>
 
 
 
         <div className="p-6 bg-gray-50/30 min-h-[350px]" data-testid="search-modal-results">
-          {filteredPosts.length > 0 ? (
+          {results.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {filteredPosts.map((post) => (
+              {results.map((post) => (
                 <article
-                  key={post.id}
+                  key={post._id}
                   className="flex flex-col bg-white rounded-xl shadow-sm hover:shadow-md border border-gray-100 overflow-hidden transition-all duration-300 hover:-translate-y-1"
                 >
                   <div className="relative aspect-[16/10] bg-gray-100 overflow-hidden">
                     <img
                       src={post.coverImage}
-                                            alt={`${post.title} - ${post.category} article`}
+                      alt={`${post.title} - ${post.category} article`}
 
                       className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
-loading="lazy"
-decoding="async"
+                      loading="lazy"
+                      decoding="async"
                     />
 
                     <span className="absolute top-3 left-3 bg-blue-600 text-white text-xs font-semibold px-2.5 py-1 rounded-md shadow-sm">
@@ -175,7 +203,7 @@ decoding="async"
                     </div>
 
                     <NavLink
-                      to={`/blogs/${post.id}`}
+                      to={`/blogs/${post.slug}`}
                       onClick={onClose}
                     >
                       <h3 className="text-xl font-bold text-gray-800 line-clamp-2 hover:text-blue-600 transition-colors">
@@ -189,7 +217,7 @@ decoding="async"
 
                     <div className="mt-auto pt-4">
                       <NavLink
-                        to={`/blogs/${post.id}`}
+                        to={`/blogs/${post.slug}`}
                         onClick={onClose}
                         className="inline-block text-center border-2 border-black text-black hover:bg-black hover:text-white font-bold py-2 px-5 rounded-lg transition-all duration-300 text-sm"
                       >

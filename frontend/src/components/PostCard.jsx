@@ -48,8 +48,8 @@ const PostCard = ({ post }) => {
           </div>
         </div>
 
-        <NavLink to={`/blogs/${post.id}`} aria-label={`Read full article: ${post.title}`}>
-          <h2 className="text-2xl font-bold text-gray-900 line-clamp-2 mb-3 hover:text-blue-600 transition-colors"
+<NavLink to={`/blogs/${post.slug}`} aria-label={`Read full article: ${post.title}`}> 
+<h2 className="text-2xl font-bold text-gray-900 line-clamp-2 mb-3 hover:text-blue-600 transition-colors"
             data-testid="post-card-title"
             >
             {post.title}
@@ -60,8 +60,9 @@ const PostCard = ({ post }) => {
           {post.excerpt}
         </p>
 
-        <NavLink
-          to={`/blogs/${post.id}`}
+         <NavLink
+  to={`/blogs/${post.slug}`}
+
           className="mt-auto inline-flex justify-center border-2 border-black text-black hover:bg-black hover:text-white font-semibold py-2 px-5 rounded-lg transition-all"
           data-testid="post-card-read-more" aria-label={`Read full blog post: ${post.title}`}
         >

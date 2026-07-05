@@ -1,10 +1,10 @@
-import React, { useMemo, lazy, Suspense } from "react";
+import React, { useMemo, lazy, Suspense,useState,useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 
 import HomeHero from "../components/HomeHero";
 import PostCard from "../components/PostCard";
-import mockPosts from "../store/mockPosts";
+import { getPosts } from "../api/postApi";
 
 const WhatIWriteAbout = lazy(() => import("../components/WhatAbout"));
 const DevelopmentJourney = lazy(() => import("../components/DevelopmentJourney"));
@@ -17,17 +17,37 @@ const StructureLoader = () => (
 );
 
 const HomePage = () => {
-  const latestPosts = useMemo(() => {
-    if (!Array.isArray(mockPosts)) return [];
-    
-    return [...mockPosts]
-      .sort((a, b) => {
-        const dateA = a.dateIso ? new Date(a.dateIso) : new Date(a.date);
-        const dateB = b.dateIso ? new Date(b.dateIso) : new Date(b.date);
-        return dateB - dateA;
-      })
-      .slice(0, 3);
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        const res = await getPosts();
+        setPosts(res.data.posts || []);
+      } catch (err) {
+        console.error("Error loading posts:", err);
+        setPosts([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPosts();
   }, []);
+
+  const latestPosts = useMemo(() => {
+    if (!Array.isArray(posts)) return [];
+
+    return [...posts]
+      .sort(
+        (a, b) =>
+          new Date(b.createdAt || b.date) -
+          new Date(a.createdAt || a.date)
+      )
+      .slice(0, 3);
+  }, [posts]);
+
 
   return (
     <>
@@ -91,14 +111,22 @@ const HomePage = () => {
             </Link>
           </div>
 
-          <div 
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" 
-            data-testid="home-page-latest-posts"
-          >
-            {latestPosts.map((post) => (
-              <PostCard key={post.id} post={post} />
-            ))}
-          </div>
+
+          {loading ? (
+            <div className="text-center text-gray-500 py-10">
+              Loading posts...
+            </div>
+          ) : latestPosts.length === 0 ? (
+            <div className="text-center text-gray-400 py-10">
+              No posts available yet.
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" data-testid="home-page-latest-posts">
+              {latestPosts.map((post) => (
+                <PostCard key={post._id || post.slug} post={post} />
+              ))}
+            </div>
+          )}
 
           <div className="flex justify-center mt-10 md:hidden">
             <Link

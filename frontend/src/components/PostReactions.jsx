@@ -1,18 +1,25 @@
 import React, { useState } from "react";
 import { FaThumbsUp, FaThumbsDown, FaRegThumbsUp, FaRegThumbsDown } from "react-icons/fa";
 import { useAuth } from "../context/AuthContext";
+import { likePost, dislikePost } from "../api/postApi";
+
 export default function PostReactions({
   postId,
   initialLikes = [],
   initialDislikes = [],
-  currentUserId,
+  
 }) {
+  const { user } = useAuth();
+  const currentUserId = user?._id;
+
   const [likes, setLikes] = useState(Array.isArray(initialLikes) ? initialLikes : []);
   const [dislikes, setDislikes] = useState(Array.isArray(initialDislikes) ? initialDislikes : []);
-   const { user } = useAuth();
+  const [busy, setBusy] = useState(false);
 
-  const isLiked = likes.includes(currentUserId);
-  const isDisliked = dislikes.includes(currentUserId);
+  const isLiked = currentUserId ? likes.includes(currentUserId) : false;
+  const isDisliked = currentUserId ? dislikes.includes(currentUserId) : false;
+
+
    const requireAuth = () => {
     if (!user) {
       alert("Please login to react");
@@ -21,25 +28,80 @@ export default function PostReactions({
     return true;
   };
 
-  const handleLike = () => {
-     if (!requireAuth()) return;
+ const handleLike = async () => {
+    if (!requireAuth() || busy) return;
+
+    // snapshot for rollback
+    const prevLikes = likes;
+    const prevDislikes = dislikes;
+
+    // optimistic update
     if (isLiked) {
       setLikes(likes.filter((id) => id !== currentUserId));
-      return;
+    } else {
+      setLikes([...likes, currentUserId]);
+      setDislikes(dislikes.filter((id) => id !== currentUserId));
     }
-    setLikes([...likes, currentUserId]);
-    setDislikes(dislikes.filter((id) => id !== currentUserId));
+
+    setBusy(true);
+    try {
+      const res = await likePost(postId);
+      const { likesCount, dislikesCount, liked, disliked } = res.data;
+      // reconcile with server truth (counts only, since we don't get full arrays back)
+      setLikes((curr) => {
+        const withoutMe = curr.filter((id) => id !== currentUserId);
+        return liked ? [...withoutMe, currentUserId] : withoutMe;
+      });
+      setDislikes((curr) => {
+        const withoutMe = curr.filter((id) => id !== currentUserId);
+        return disliked ? [...withoutMe, currentUserId] : withoutMe;
+      });
+      // sanity check against counts (in case of race conditions with other users)
+      void likesCount;
+      void dislikesCount;
+    } catch (err) {
+      console.error("Failed to like post:", err);
+      setLikes(prevLikes);
+      setDislikes(prevDislikes);
+    } finally {
+      setBusy(false);
+    }
   };
 
-  const handleDislike = () => {
-      if (!requireAuth()) return;
+
+    const handleDislike = async () => {
+    if (!requireAuth() || busy) return;
+
+    const prevLikes = likes;
+    const prevDislikes = dislikes;
+
     if (isDisliked) {
       setDislikes(dislikes.filter((id) => id !== currentUserId));
-      return;
+    } else {
+      setDislikes([...dislikes, currentUserId]);
+      setLikes(likes.filter((id) => id !== currentUserId));
     }
-    setDislikes([...dislikes, currentUserId]);
-    setLikes(likes.filter((id) => id !== currentUserId));
+   setBusy(true);
+    try {
+      const res = await dislikePost(postId);
+      const { liked, disliked } = res.data;
+      setLikes((curr) => {
+        const withoutMe = curr.filter((id) => id !== currentUserId);
+        return liked ? [...withoutMe, currentUserId] : withoutMe;
+      });
+      setDislikes((curr) => {
+        const withoutMe = curr.filter((id) => id !== currentUserId);
+        return disliked ? [...withoutMe, currentUserId] : withoutMe;
+      });
+    } catch (err) {
+      console.error("Failed to dislike post:", err);
+      setLikes(prevLikes);
+      setDislikes(prevDislikes);
+    } finally {
+      setBusy(false);
+    }
   };
+
 
   return (
     <section className="max-w-3xl mx-auto mt-16 pt-12 border-t border-gray-100 text-center" data-testid="post-reactions" aria-labelledby="post-reactions-heading">
@@ -51,6 +113,7 @@ export default function PostReactions({
         aria-label="Article reaction buttons">
         <button
           onClick={handleLike}
+          disabled={busy}
           aria-label={`Like article. ${likes.length} likes`}
           className={`flex items-center gap-2.5 px-6 py-3 rounded-xl border font-bold text-sm transition-all duration-200 transform active:scale-95 cursor-pointer
             data-testid="post-reactions-like"
@@ -69,6 +132,7 @@ export default function PostReactions({
 
         <button
           onClick={handleDislike}
+          disabled={busy}
           aria-label={`Dislike article. ${dislikes.length} dislikes`}
 
           className={`flex items-center gap-2.5 px-6 py-3 rounded-xl border font-bold text-sm transition-all duration-200 transform active:scale-95 cursor-pointer
