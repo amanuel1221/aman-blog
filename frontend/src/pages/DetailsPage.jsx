@@ -2,27 +2,20 @@ import React, { useEffect, useState, useMemo, lazy, Suspense } from 'react';
 import { useParams, NavLink } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { FaUserCircle } from "react-icons/fa";
-import mockPosts from '../store/mockPosts';
-
-// Core Critical Components
+import { getPostBySlug, getPosts, viewPost } from "../api/postApi";
+import { useAuth } from "../context/AuthContext";
 import ReadingProgressBar from '../components/ReadingProgressBar';
 import ScrollToTopButton from '../components/ScrollToTopButton';
 import ReadingMode from "../components/ReadingMode";
 import PostCard from '../components/PostCard';
 
-// Heavy interactive or non-critical structures remain lazily loaded
 const TableOfContents = lazy(() => import('../components/TableOfContents'));
 const ArticleShare = lazy(() => import('../components/ArticleShare'));
 const PostReactions = lazy(() => import('../components/PostReactions'));
 const PostComments = lazy(() => import('../components/PostComments'));
 
-// Safe string normalization helper for element id indexing
-const generateSlug = (children) => {
-  const content = React.Children.toArray(children).join("");
-  return content ? content.toLowerCase().replace(/\s+/g, "-").replace(/[^\w-]/g, "") : "";
-};
+import { slugify } from '../utils/slugify';
 
-// 🚀 Isolating Markdown & Plugins into a single asynchronously loaded chunk to preserve performance safely
 const MarkdownRenderer = lazy(() => {
   return Promise.all([
     import('react-markdown'),
@@ -32,8 +25,11 @@ const MarkdownRenderer = lazy(() => {
     const ReactMarkdown = ReactMarkdownModule.default;
     const remarkGfm = remarkGfmModule.default;
     const CodeBlock = CodeBlockModule.default;
+    const generateSlug = (children) => {
+  const content = React.Children.toArray(children).join("");
+  return slugify(content);
+};
 
-    // Return a unified functional rendering wrapper component
     return {
       default: ({ content }) => (
         <ReactMarkdown
@@ -77,10 +73,7 @@ const MarkdownRenderer = lazy(() => {
   });
 });
 
-const currentSessionUser = {
-  id: "user_amanuel_123",
-  name: "Amanuel"
-};
+
 
 const ComponentLoader = () => (
   <div className="w-full h-12 flex items-center justify-center text-sm text-gray-400 animate-pulse">
@@ -89,67 +82,82 @@ const ComponentLoader = () => (
 );
 
 const DetailsPage = () => {
-  const { id } = useParams();
+  const { id: slug } = useParams();
+  const { user } = useAuth();
+
+  const [post, setPost] = useState(null);
+  const [related, setRelated] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [readingMode, setReadingMode] = useState(false);
 
-  const post = useMemo(() => {
-    return mockPosts.find((item) => item.id === parseInt(id, 10)) || null;
-  }, [id]);
+  useEffect(() => {
+    const fetchPost = async () => {
+      try {
+
+        const res = await getPostBySlug(slug);
+        setPost(res.data.post);
+
+      } catch (err) {
+        console.error("Failed to load post", err);
+        setPost(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPost();
+  }, [slug]);
+
+  useEffect(() => {
+    const fetchRelated = async () => {
+      try {
+        const res = await getPosts();
+        setRelated(res.data.posts || []);
+      } catch (err) {
+        setRelated([]);
+      }
+    };
+
+    fetchRelated();
+  }, []);
 
   const relatedArticles = useMemo(() => {
     if (!post) return [];
 
-    const sameCategoryPosts = mockPosts.filter(
-      (item) => item.category === post.category && item.id !== post.id
+    return related
+      .filter(
+        (p) => p.category === post.category && p._id !== post._id
+      )
+      .slice(0, 3);
+  }, [post, related]);
+
+  if (loading) {
+    return (
+      <div className="text-center py-20 text-gray-500">
+        Loading article...
+      </div>
     );
-
-    if (sameCategoryPosts.length < 3) {
-      const remainingCountNeeded = 3 - sameCategoryPosts.length;
-      const fallbackPosts = mockPosts.filter(
-        (item) => item.category !== post.category && item.id !== post.id
-      );
-      return [...sameCategoryPosts, ...fallbackPosts.slice(0, remainingCountNeeded)];
-    }
-
-    return sameCategoryPosts.slice(0, 3);
-  }, [post]);
-
-  useEffect(() => {
-    window.scrollTo({ top: 0 });
-  }, [id]);
+  }
 
   if (!post) {
     return (
-      <div className="text-center py-32 bg-white text-gray-400 font-bold tracking-tight" role="alert">
-        Article view scope initialization failure. Resource target not found.
+      <div className="text-center py-20 text-red-500">
+        Post not found
       </div>
     );
   }
 
   const structuredArticleData = {
     "@context": "https://schema.org",
-    "@type": "TechArticle",
-    "headline": post.title,
-    "description": post.excerpt,
-    "image": post.coverImage || "https://amanuel-portfolio-flame.vercel.app/og-image.png",
-    "datePublished": post.dateIso || "2026-06-19",
-    "author": {
+    "@type": "BlogPosting",
+    headline: post.title,
+    description: post.excerpt,
+    image: post.coverImage,
+    datePublished: post.dateIso || "2026-06-19",
+    author: {
       "@type": "Person",
-      "name": post.author?.name || "Amanuel Amare",
-      "url": "https://amanuel-portfolio-flame.vercel.app/about"
+      name: post.author?.name || post.author || "Amanuel Amare",
     },
-    "publisher": {
-      "@type": "Organization",
-      "name": "Amanuel Amare Engineering Blog",
-      "logo": {
-        "@type": "ImageObject",
-        "url": "https://amanuel-portfolio-flame.vercel.app/og-image.png"
-      }
-    },
-    "mainEntityOfPage": {
-      "@type": "WebPage",
-      "@id": `https://amanuel-portfolio-flame.vercel.app/blogs/${id}`
-    }
   };
 
   return (
@@ -158,16 +166,16 @@ const DetailsPage = () => {
         <title>{`${post.title} | Amanuel Amare`}</title>
         <meta name="description" content={post.excerpt} />
         <meta name="keywords" content={`${post.category || 'Software'}, Web Development, Full Stack Engineering`} />
-        <link rel="canonical" href={`https://amanuel-portfolio-flame.vercel.app/blogs/${id}`} />
-        
+        <link rel="canonical" href={`https://amanuel-portfolio-flame.vercel.app/blogs/${slug}`} />
+
         <meta property="og:type" content="article" />
         <meta property="og:title" content={post.title} />
         <meta property="og:description" content={post.excerpt} />
-        <meta property="og:url" content={`https://amanuel-portfolio-flame.vercel.app/blogs/${id}`} />
+        <meta property="og:url" content={`https://amanuel-portfolio-flame.vercel.app/blogs/${slug}`} />
         {post.coverImage && <meta property="og:image" content={post.coverImage} />}
         <meta property="article:published_time" content={post.dateIso || "2026-06-19"} />
         <meta property="article:author" content="Amanuel Amare" />
-        
+
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={post.title} />
         <meta name="twitter:description" content={post.excerpt} />
@@ -186,7 +194,7 @@ const DetailsPage = () => {
         <ScrollToTopButton />
         <ReadingMode onToggle={setReadingMode} />
 
-        <article className="max-w-7xl mx-auto px-6 pt-14 pb-24" data-testid="details-page-article">
+        <article className="max-w-7xl mx-auto px-4 sm:px-6 pt-8 sm:pt-14 pb-16 sm:pb-24" data-testid="details-page-article">
           <nav className="text-xs font-semibold uppercase tracking-[0.3em] text-gray-400 text-center mb-6" aria-label="Breadcrumb" data-testid="details-page-breadcrumb">
             <NavLink to="/" className="hover:text-black">Home</NavLink> / <NavLink to="/blogs" className="hover:text-black">Blog</NavLink> / {post.category || "General"}
           </nav>
@@ -195,11 +203,11 @@ const DetailsPage = () => {
             {post.title}
           </h1>
 
-          <p className="text-gray-500 text-lg text-center max-w-2xl mx-auto mb-10 leading-relaxed" data-testid="details-page-excerpt">
+          <p className="text-gray-500 text-base sm:text-lg text-center max-w-2xl mx-auto mb-6 sm:mb-10 leading-relaxed" data-testid="details-page-excerpt">
             {post.excerpt}
           </p>
 
-          <div className="flex items-center justify-center gap-4 text-xs font-bold text-gray-400 mb-14 uppercase tracking-wider" data-testid="details-page-meta">
+          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs font-bold text-gray-400 mb-8 sm:mb-14 uppercase tracking-wider" data-testid="details-page-meta">
             <div className="flex items-center gap-2" data-testid="details-page-author">
               <NavLink
                 to="/about"
@@ -221,8 +229,8 @@ const DetailsPage = () => {
           </div>
 
           {post.coverImage && (
-            <div className="max-w-6xl mx-auto mb-20">
-              <div className="aspect-[16/7] rounded-3xl overflow-hidden shadow-xl border border-gray-100">
+            <div className="max-w-6xl mx-auto mb-10 sm:mb-20">
+              <div className="aspect-[4/3] sm:aspect-[16/7] rounded-2xl sm:rounded-3xl overflow-hidden shadow-xl border border-gray-100">
                 <img
                   src={post.coverImage}
                   alt={`Cover graphic for ${post.title}`}
@@ -234,11 +242,11 @@ const DetailsPage = () => {
           )}
 
           <div
-            className={readingMode ? "max-w-3xl mx-auto transition-all duration-500" : "grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-14 max-w-6xl mx-auto transition-all duration-500"}
+            className={readingMode ? "max-w-3xl mx-auto transition-all duration-500" : "grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-8 lg:gap-14 max-w-6xl mx-auto transition-all duration-500"}
             data-testid="details-page-content"
           >
             <section
-              className={readingMode ? "text-gray-800 text-xl leading-10 font-medium" : "text-gray-800 text-lg leading-8 font-medium"}
+              className={readingMode ? "text-gray-800 text-lg sm:text-xl leading-9 sm:leading-10 font-medium" : "text-gray-800 text-base sm:text-lg leading-7 sm:leading-8 font-medium"}
               data-testid="details-page-section"
               aria-label="Article Body"
             >
@@ -284,7 +292,6 @@ const DetailsPage = () => {
                   postId={post._id}
                   initialLikes={post.likes || []}
                   initialDislikes={post.dislikes || []}
-                  currentUserId={currentSessionUser.id}
                 />
               </Suspense>
 
@@ -296,18 +303,19 @@ const DetailsPage = () => {
         )}
 
         {!readingMode && (
-          <section className="w-full max-w-6xl mx-auto mt-24 pt-16 border-t border-gray-100 px-6 pb-12" data-testid="details-page-related-articles" aria-label="Recommended Reading">
-            <div className="text-center mb-12">
-              <h2 className="text-4xl md:text-5xl font-black tracking-tight">Related Articles</h2>
+          <section className="w-full max-w-6xl mx-auto mt-16 sm:mt-24 pt-10 sm:pt-16 border-t border-gray-100 px-4 sm:px-6 pb-12" data-testid="details-page-related-articles" aria-label="Recommended Reading">
+            <div className="text-center mb-8 sm:mb-12">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight">Related Articles</h2>
               <p className="mt-3 text-gray-500 max-w-xl mx-auto">
                 Continue exploring articles related to {post.category || "General"}.
               </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8" data-testid="details-page-related-articles-grid">
+
               {relatedArticles.map((item) => (
                 <div
-                  key={item.id}
+                  key={item._id || item.slug}
                   className="cursor-pointer focus-within:ring-2 focus-within:ring-blue-500 rounded-3xl outline-none"
                   data-testid="details-page-related-article"
                 >
