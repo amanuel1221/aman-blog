@@ -2,13 +2,16 @@ import React, { useState } from "react";
 import { FaThumbsUp, FaThumbsDown, FaRegThumbsUp, FaRegThumbsDown } from "react-icons/fa";
 import { useAuth } from "../context/AuthContext";
 import { likePost, dislikePost } from "../api/postApi";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 export default function PostReactions({
   postId,
   initialLikes = [],
   initialDislikes = [],
-  
+
 }) {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const currentUserId = user?._id;
 
@@ -20,22 +23,32 @@ export default function PostReactions({
   const isDisliked = currentUserId ? dislikes.includes(currentUserId) : false;
 
 
-   const requireAuth = () => {
-    if (!user) {
-      alert("Please login to react");
-      return false;
-    }
-    return true;
-  };
+ const requireAuth = () => {
+  if (!user) {
+    toast.info("Please sign in to react to this article.", {
+      position: "top-right",
+      autoClose: 1800,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+    });
 
- const handleLike = async () => {
+    setTimeout(() => {
+      navigate("/signin");
+    }, 1800);
+
+    return false;
+  }
+
+  return true;
+};
+
+  const handleLike = async () => {
     if (!requireAuth() || busy) return;
 
-    // snapshot for rollback
     const prevLikes = likes;
     const prevDislikes = dislikes;
 
-    // optimistic update
     if (isLiked) {
       setLikes(likes.filter((id) => id !== currentUserId));
     } else {
@@ -47,7 +60,6 @@ export default function PostReactions({
     try {
       const res = await likePost(postId);
       const { likesCount, dislikesCount, liked, disliked } = res.data;
-      // reconcile with server truth (counts only, since we don't get full arrays back)
       setLikes((curr) => {
         const withoutMe = curr.filter((id) => id !== currentUserId);
         return liked ? [...withoutMe, currentUserId] : withoutMe;
@@ -56,7 +68,6 @@ export default function PostReactions({
         const withoutMe = curr.filter((id) => id !== currentUserId);
         return disliked ? [...withoutMe, currentUserId] : withoutMe;
       });
-      // sanity check against counts (in case of race conditions with other users)
       void likesCount;
       void dislikesCount;
     } catch (err) {
@@ -69,7 +80,7 @@ export default function PostReactions({
   };
 
 
-    const handleDislike = async () => {
+  const handleDislike = async () => {
     if (!requireAuth() || busy) return;
 
     const prevLikes = likes;
@@ -81,7 +92,7 @@ export default function PostReactions({
       setDislikes([...dislikes, currentUserId]);
       setLikes(likes.filter((id) => id !== currentUserId));
     }
-   setBusy(true);
+    setBusy(true);
     try {
       const res = await dislikePost(postId);
       const { liked, disliked } = res.data;
@@ -120,13 +131,12 @@ export default function PostReactions({
             aria-label="Like article"
           aria-pressed={isLiked}
 
-          ${
-            isLiked
+          ${isLiked
               ? "bg-white border-gray-900 text-gray-900 scale-105 shadow-sm"
               : "bg-white border-gray-200 text-gray-400 hover:border-gray-400 hover:text-gray-600"
-          }`}
+            }`}
         >
-          {isLiked ? <FaThumbsUp className="text-gray-900" size={14}  aria-hidden="true" /> : <FaRegThumbsUp size={14}  aria-hidden="true"/>}
+          {isLiked ? <FaThumbsUp className="text-gray-900" size={14} aria-hidden="true" /> : <FaRegThumbsUp size={14} aria-hidden="true" />}
           <span>{likes.length}</span>
         </button>
 
@@ -137,17 +147,16 @@ export default function PostReactions({
 
           className={`flex items-center gap-2.5 px-6 py-3 rounded-xl border font-bold text-sm transition-all duration-200 transform active:scale-95 cursor-pointer
             data-testid="post-reactions-dislike"
-          ${
-            isDisliked
+          ${isDisliked
               ? "bg-white border-gray-900 text-gray-900 scale-105 shadow-sm"
               : "bg-white border-gray-200 text-gray-400 hover:border-gray-400 hover:text-gray-600"
-          }`}
+            }`}
         >
-          {isDisliked ? <FaThumbsDown className="text-gray-900" size={14} aria-hidden="true"/> : <FaRegThumbsDown size={14} aria-hidden="true"/>}
+          {isDisliked ? <FaThumbsDown className="text-gray-900" size={14} aria-hidden="true" /> : <FaRegThumbsDown size={14} aria-hidden="true" />}
           <span>{dislikes.length}</span>
         </button>
       </div>
-       <p className="sr-only">
+      <p className="sr-only">
         Readers can vote whether this blog post was helpful.
       </p>
     </section>
