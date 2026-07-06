@@ -26,9 +26,9 @@ const MarkdownRenderer = lazy(() => {
     const remarkGfm = remarkGfmModule.default;
     const CodeBlock = CodeBlockModule.default;
     const generateSlug = (children) => {
-  const content = React.Children.toArray(children).join("");
-  return slugify(content);
-};
+      const content = React.Children.toArray(children).join("");
+      return slugify(content);
+    };
 
     return {
       default: ({ content }) => (
@@ -172,14 +172,14 @@ const DetailsPage = () => {
         <meta property="og:title" content={post.title} />
         <meta property="og:description" content={post.excerpt} />
         <meta property="og:url" content={`https://amanuel-portfolio-flame.vercel.app/blogs/${slug}`} />
-        {post.coverImage && <meta property="og:image" content={post.coverImage} />}
+        {post.coverImage.url && <meta property="og:image" content={post.coverImage} />}
         <meta property="article:published_time" content={post.dateIso || "2026-06-19"} />
         <meta property="article:author" content="Amanuel Amare" />
 
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={post.title} />
         <meta name="twitter:description" content={post.excerpt} />
-        {post.coverImage && <meta name="twitter:image" content={post.coverImage} />}
+        {post.coverImage.url && <meta name="twitter:image" content={post.coverImage} />}
 
         <script type="application/ld+json">
           {JSON.stringify(structuredArticleData)}
@@ -228,11 +228,11 @@ const DetailsPage = () => {
             </span>
           </div>
 
-          {post.coverImage && (
+          {post.coverImage.url && (
             <div className="max-w-6xl mx-auto mb-10 sm:mb-20">
               <div className="aspect-[4/3] sm:aspect-[16/7] rounded-2xl sm:rounded-3xl overflow-hidden shadow-xl border border-gray-100">
                 <img
-                  src={post.coverImage}
+                  src={post.coverImage.url}
                   alt={`Cover graphic for ${post.title}`}
                   className="w-full h-full object-cover hover:scale-105 transition duration-700"
                   data-testid="details-page-cover-image"
@@ -296,7 +296,7 @@ const DetailsPage = () => {
               </Suspense>
 
               <Suspense fallback={<ComponentLoader />}>
-                <PostComments initialComments={post.comments} />
+                <PostComments postId={post._id} />
               </Suspense>
             </div>
           </footer>
