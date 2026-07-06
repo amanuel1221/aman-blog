@@ -8,197 +8,202 @@ const MessagesTable = ({
   selectedMessageId,
 }) => {
   return (
-    <div data-testid="messages-table" className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-      {/* Header */}
-      <div className="mb-6">
-        <h2 className="text-xl font-semibold text-gray-800">
-          Contact Messages
-        </h2>
+    <div className="rounded-3xl border border-slate-200 bg-white shadow-sm overflow-hidden">
 
-        <p className="text-sm text-gray-500 mt-1">
-          Messages received from the contact form. Click a row to read the full note.
+      {/* Header */}
+      <div className="p-6 border-b border-slate-100">
+        <h2 className="text-lg font-semibold text-slate-900">
+          Inbox Messages
+        </h2>
+        <p className="text-sm text-slate-500 mt-1">
+          Every message from your contact form appears here. Unread messages are highlighted for priority.
         </p>
       </div>
 
-      {/* Mobile cards */}
-      <div data-testid="messages-cards" className="space-y-4 lg:hidden">
-        {messages.map((msg) => (
-          <div
-            key={msg.id}
-            onClick={() => onSelectMessage(msg)}
-            data-testid={`message-card-${msg.id}`}
-            className={`rounded-3xl border border-gray-200 bg-slate-50 p-4 cursor-pointer transition hover:shadow-lg ${
-              selectedMessageId === msg.id ? "ring-2 ring-blue-400" : ""
-            }`}
-          >
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <p className="text-lg font-semibold text-gray-800">{msg.name}</p>
-                <p className="text-sm text-gray-500">{msg.email}</p>
-              </div>
-              <span
-                className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                  msg.status === "Unread"
-                    ? "bg-red-100 text-red-600"
-                    : "bg-green-100 text-green-600"
+      {/* MOBILE CARDS */}
+      <div className="lg:hidden p-4 space-y-4">
+        {messages.map((msg) => {
+          const id = msg._id || msg.id;
+
+          return (
+            <div
+              key={id}
+              onClick={() => onSelectMessage(msg)}
+              className={`p-4 rounded-2xl border cursor-pointer transition
+                ${
+                  selectedMessageId === id
+                    ? "border-indigo-400 bg-indigo-50"
+                    : msg.isRead
+                    ? "bg-white border-slate-200"
+                    : "bg-white border-indigo-200 shadow-sm"
                 }`}
-              >
-                {msg.status}
-              </span>
-            </div>
+            >
+              {/* Top */}
+              <div className="flex justify-between items-start">
+                <div>
+                  <p className="font-semibold text-slate-900">
+                    {msg.from_name}
+                  </p>
+                  <p className="text-xs text-slate-500">{msg.email}</p>
+                </div>
 
-            <div className="mt-4 grid grid-cols-2 gap-3 text-sm text-gray-600">
-              <div className="rounded-2xl bg-white p-3 shadow-sm">
-                <p className="text-slate-400">Company</p>
-                <p className="mt-1 font-medium text-slate-800">{msg.company}</p>
+                <span
+                  className={`text-xs px-2 py-1 rounded-full font-medium ${
+                    msg.isRead
+                      ? "bg-slate-100 text-slate-600"
+                      : "bg-indigo-100 text-indigo-700"
+                  }`}
+                >
+                  {msg.isRead ? "Read" : "New"}
+                </span>
               </div>
-              <div className="rounded-2xl bg-white p-3 shadow-sm">
-                <p className="text-slate-400">Received</p>
-                <p className="mt-1 font-medium text-slate-800">{new Date(msg.createdAt).toLocaleDateString()}</p>
+
+              {/* Preview */}
+              <p className="text-sm text-slate-600 mt-3 line-clamp-2">
+                {msg.message}
+              </p>
+
+              {/* Footer */}
+              <div className="flex justify-between items-center mt-4 text-xs text-slate-500">
+                <span>{msg.company || "Personal"}</span>
+                <span>
+                  {new Date(msg.createdAt).toLocaleDateString()}
+                </span>
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-2 mt-4">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onToggleStatus(msg);
+                  }}
+                  className={`flex-1 py-2 rounded-xl text-sm font-medium transition cursor-pointer ${
+                    msg.isRead
+                      ? "bg-slate-100 text-slate-700"
+                      : "bg-indigo-600 text-white"
+                  }`}
+                >
+                  {msg.isRead ? "Mark unread" : "Mark read"}
+                </button>
+
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDelete(msg);
+                  }}
+                  className="px-3 py-2 rounded-xl bg-red-50 text-red-600 hover:bg-red-100 transition cursor-pointer"
+                >
+                  <FiTrash2 />
+                </button>
               </div>
             </div>
-
-            <div className="mt-4 rounded-3xl bg-white p-4 shadow-sm text-sm text-gray-700">
-              {msg.message}
-            </div>
-
-            <div className="mt-4 flex flex-wrap gap-3">
-              <button
-                data-testid={`message-toggle-${msg.id}`}
-                onClick={(event) => {
-                  event.stopPropagation();
-                  onToggleStatus(msg.id);
-                }}
-                aria-label={`Toggle read status for message from ${msg.name}`}
-                className={`rounded-2xl px-4 py-3 text-sm font-semibold transition ${
-                  msg.status === "Unread"
-                    ? "bg-blue-600 text-white hover:bg-blue-700"
-                    : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-                }`}
-              >
-                {msg.status === "Unread" ? "Mark read" : "Mark unread"}
-              </button>
-              <button
-                data-testid={`message-delete-${msg.id}`}
-                onClick={(event) => {
-                  event.stopPropagation();
-                  onDelete(msg.id);
-                }}
-                aria-label={`Delete message from ${msg.name}`}
-                className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700 hover:bg-red-100 transition"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
-      {/* Table */}
-      <div data-testid="messages-table-desktop" className="overflow-x-auto hidden lg:block">
-        <table className="w-full min-w-full text-sm text-left">
-          <thead>
-            <tr className="border-b text-gray-500">
-              <th className="py-3 px-4">Name</th>
-              <th className="py-3 px-4">Email</th>
-              <th className="py-3 px-4">Company</th>
-              <th className="py-3 px-4">Message</th>
-              <th className="py-3 px-4">Status</th>
-              <th className="py-3 px-4">Date</th>
-              <th className="py-3 px-4">Actions</th>
+      {/* DESKTOP TABLE */}
+      <div className="hidden lg:block overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead className="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
+            <tr>
+              <th className="p-4 text-left">Sender</th>
+              <th className="p-4 text-left">Message</th>
+              <th className="p-4 text-left">Status</th>
+              <th className="p-4 text-left">Date</th>
+              <th className="p-4 text-right">Actions</th>
             </tr>
           </thead>
 
           <tbody>
-            {messages.map((msg) => (
-              <tr
-                key={msg.id}
-                onClick={() => onSelectMessage(msg)}
-                className={`border-b cursor-pointer transition hover:bg-slate-50 ${
-                  selectedMessageId === msg.id ? "bg-slate-100" : ""
-                }`}
-              >
-                {/* Name */}
-                <td className="py-3 px-4 font-medium text-gray-800">
-                  {msg.name}
-                </td>
+            {messages.map((msg) => {
+              const id = msg._id || msg.id;
 
-                {/* Email */}
-                <td className="py-3 px-4 text-gray-600">
-                  {msg.email}
-                </td>
+              return (
+                <tr
+                  key={id}
+                  onClick={() => onSelectMessage(msg)}
+                  className={`border-t cursor-pointer transition
+                    ${
+                      selectedMessageId === id
+                        ? "bg-indigo-50"
+                        : msg.isRead
+                        ? "hover:bg-slate-50"
+                        : "bg-white hover:bg-indigo-50"
+                    }`}
+                >
+                  {/* Sender */}
+                  <td className="p-4">
+                    <p className="font-medium text-slate-900">
+                      {msg.from_name}
+                    </p>
+                    <p className="text-xs text-slate-500">{msg.email}</p>
+                  </td>
 
-                {/* Company */}
-                <td className="py-3 px-4 text-gray-600">
-                  {msg.company}
-                </td>
+                  {/* Message */}
+                  <td className="p-4 text-slate-600 max-w-md truncate">
+                    {msg.message}
+                  </td>
 
-                {/* Message preview */}
-                <td className="py-3 px-4 text-gray-600 max-w-xs overflow-hidden truncate">
-                  {msg.message}
-                </td>
-
-                {/* Status */}
-                <td className="py-3 px-4">
-                  {msg.status === "Unread" ? (
-                    <span className="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-600">
-                      Unread
-                    </span>
-                  ) : (
-                    <span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-600">
-                      Read
-                    </span>
-                  )}
-                </td>
-
-                {/* Date */}
-                <td className="py-3 px-4 text-gray-500">
-                  {new Date(msg.createdAt).toLocaleDateString()}
-                </td>
-
-                {/* Actions */}
-                <td className="py-3 px-4">
-                  <div className="flex items-center gap-2">
-                    <button
-                      data-testid={`message-toggle-${msg.id}`}
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        onToggleStatus(msg.id);
-                      }}
-                      aria-label={`Toggle read status for message from ${msg.name}`}
-                      className={`rounded-full px-3 py-1 text-xs font-semibold transition ${
-                        msg.status === "Unread"
-                          ? "bg-blue-600 text-white hover:bg-blue-700"
-                          : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                  {/* Status */}
+                  <td className="p-4">
+                    <span
+                      className={`text-xs px-2 py-1 rounded-full font-medium ${
+                        msg.isRead
+                          ? "bg-slate-100 text-slate-600"
+                          : "bg-indigo-100 text-indigo-700"
                       }`}
                     >
-                      {msg.status === "Unread" ? "Mark read" : "Mark unread"}
-                    </button>
+                      {msg.isRead ? "Read" : "New"}
+                    </span>
+                  </td>
 
-                    <button
-                      data-testid={`message-delete-${msg.id}`}
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        onDelete(msg.id);
-                      }}
-                      className="rounded-full p-2 text-red-600 hover:bg-red-50 transition"
-                      title={`Delete message from ${msg.name}`}
-                      aria-label={`Delete message from ${msg.name}`}
-                    >
-                      <FiTrash2 className="h-4 w-4" />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
+                  {/* Date */}
+                  <td className="p-4 text-slate-500">
+                    {new Date(msg.createdAt).toLocaleDateString()}
+                  </td>
+
+                  {/* Actions */}
+                  <td className="p-4 text-right">
+                    <div className="flex justify-end gap-2">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onToggleStatus(msg);
+                        }}
+                        className={`px-3 py-1 rounded-lg text-xs font-medium transition cursor-pointer ${
+                          msg.isRead
+                            ? "bg-slate-100 text-slate-700"
+                            : "bg-indigo-600 text-white"
+                        }`}
+                      >
+                        {msg.isRead ? "Unread" : "Read"}
+                      </button>
+
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDelete(msg);
+                        }}
+                        className="p-2 rounded-lg text-red-500 hover:bg-red-50 cursor-pointer"
+                      >
+                        <FiTrash2 size={14} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
 
-      {/* Empty state */}
+      {/* EMPTY STATE */}
       {messages.length === 0 && (
-        <div className="text-center py-10 text-gray-500">
-          No messages received yet
+        <div className="p-10 text-center">
+          <div className="text-slate-400 text-sm">
+            No messages yet — your inbox is quiet ✨
+          </div>
         </div>
       )}
     </div>

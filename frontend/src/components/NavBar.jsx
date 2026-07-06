@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import { HiMenu, HiX, HiMoon, HiSun, HiOutlineSearch } from "react-icons/hi";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 import SearchModal from "./SearchModal";
 import mockPosts from "../store/mockPosts";
@@ -60,6 +62,14 @@ useEffect(() => {
     isActive
       ? "nav-link active text-blue-600 font-semibold"
       : "nav-link text-gray-700 hover:text-blue-600 transition-colors";
+
+      const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate("/signin"); // redirect after logout
+  };
 
   return (
     <>
@@ -167,6 +177,30 @@ datatype="navbar-mobile-search-toggle">
   >
     Contact Me
   </NavLink>
+  <div className="flex gap-4 items-center">
+  {user ? (
+    <button
+      onClick={() => {
+        handleLogout();
+        setIsMenuOpen(false);
+      }}
+      className=" hover:bg-black text-black hover:text-white font-bold py-1.5 px-6 rounded transition-colors z-10 border border-black cursor-pointer "
+    >
+      Logout
+    </button>
+  ) : (
+    <button
+      onClick={() =>{
+
+      navigate("/signin");
+    setIsMenuOpen(false);}}
+    className=" hover:bg-black text-black hover:text-white font-bold py-1.5 px-6 rounded transition-colors z-10 border border-black cursor-pointer "
+    >
+      Sign In 
+    </button>
+  )}
+</div>
+
 </div>
           <div className="lg:hidden z-[1010]">
             {!isMenuOpen ? (
@@ -187,6 +221,7 @@ datatype="navbar-mobile-search-toggle">
               />
             )}
           </div>
+          
         </nav>
 
 
@@ -258,8 +293,34 @@ datatype="navbar-mobile-search-toggle">
                 Contact Me
 
               </NavLink>
+                   
             </div>
+            <div className="flex gap-4 items-center">
+  {user ? (
+    <button
+      onClick={() => {
+        handleLogout();
+        setIsMenuOpen(false);
+      }}
+      className=" hover:bg-black text-black hover:text-white font-bold py-1.5 px-6 rounded transition-colors z-10 border border-black cursor-pointer "
+    >
+      Logout
+    </button>
+  ) : (
+    <button
+      onClick={() =>{
+
+      navigate("/signin");
+    setIsMenuOpen(false);}}
+    className=" hover:bg-black text-black hover:text-white font-bold py-1.5 px-6 rounded transition-colors z-10 border border-black cursor-pointer "
+    >
+      Sign In
+    </button>
+  )}
+</div>
           </div>
+
+
         )}
 
       </header>

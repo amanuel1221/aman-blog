@@ -30,6 +30,9 @@ const getPostBySlug = (slug) =>
 const viewPost = (id) =>
   api.post(`/posts/${id}/view`);
 
+const getPostById = (id) =>
+  api.get(`/posts/admin/${id}`);
+
 export {
   getPosts,
   getPostBySlug,
@@ -39,4 +42,5 @@ export {
   likePost,
   dislikePost,
   viewPost,
+  getPostById,
 };

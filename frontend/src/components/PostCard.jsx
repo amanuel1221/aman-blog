@@ -4,70 +4,89 @@ import { FaUserCircle } from "react-icons/fa";
 
 const PostCard = ({ post }) => {
   return (
-    <article className="flex flex-col bg-white rounded-xl shadow-sm hover:shadow-md border border-gray-100 overflow-hidden transition-all duration-300 hover:-translate-y-1"
-      data-testid="post-card" aria-label={`Blog post: ${post.title}`} >
-
-      <div className="relative aspect-[4/3] w-full overflow-hidden bg-gray-100" data-testid="post-card-image-container">
+    <article 
+      className="group flex flex-col h-full bg-white rounded-xl border border-slate-100/80 overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-slate-100/50"
+      data-testid="post-card" 
+      aria-label={`Blog post: ${post.title}`}
+    >
+      <NavLink 
+        to={`/blogs/${post.slug}`} 
+        className="relative block aspect-[16/10] w-full overflow-hidden bg-slate-50"
+        tabIndex="-1"
+        aria-hidden="true"
+      >
         <img
-          src={post.coverImage}
-          alt={post.title}
-          className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+          src={post.coverImage?.url || post.coverImage}
+          alt=""
+          className="w-full h-full object-cover transition-transform duration-700 ease-out will-change-transform group-hover:scale-102"
           loading="lazy"
-          data-testid="post-card-image"
           decoding="async"
+          data-testid="post-card-image"
         />
+      </NavLink>
 
-        {post.category && (
-          <span className="absolute top-4 left-4 bg-blue-600 text-white text-xs font-semibold px-2.5 py-1 rounded-md shadow-sm" data-testid="post-card-category" aria-label={`Category: ${post.category}`}>
-            {post.category}
-          </span>
-        )}
-      </div>
-
-      <div className="flex flex-col flex-grow p-6" data-testid="post-card-content">
-
-        <div className="flex items-center justify-between mb-4 text-sm text-gray-500 border-b border-gray-100 pb-3">
-          <div className="flex items-center gap-2">
-            <NavLink
-              to="/about"
-              className="flex items-center gap-2 hover:text-blue-600"
-              aria-label={`Author profile for ${post.author?.name || post.author}`}
+      <div className="flex flex-col flex-grow p-5 sm:p-6" data-testid="post-card-content">
+        
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-3.5">
+          {post.category && (
+            <span 
+              className="text-[10px] sm:text-xs font-bold uppercase tracking-[0.15em] text-gray bg-blue-50/60 px-2.5 py-1 rounded-md" 
+              data-testid="post-card-category"
             >
-              <FaUserCircle className="w-5 h-5 text-gray-400" aria-hidden="true"/>
-              <span className="font-semibold text-gray-900">
-
-                <span data-testid="post-card-author">{post.author?.name || post.author}</span>
-              </span>
-            </NavLink>
-          </div>
-
-          <div className="flex items-center gap-2" data-testid="post-card-meta">
-            <span>{post.date}</span>
-            <span aria-hidden="true">•</span>
+              {post.category}
+            </span>
+          )}
+          <div className="flex items-center gap-1.5 text-xs font-medium text-slate-400" data-testid="post-card-meta">
+            <time>{post.date}</time>
+            <span aria-hidden="true" className="text-slate-300">•</span>
             <span>{post.readTime}</span>
           </div>
         </div>
 
-<NavLink to={`/blogs/${post.slug}`} aria-label={`Read full article: ${post.title}`}> 
-<h2 className="text-2xl font-bold text-gray-900 line-clamp-2 mb-3 hover:text-blue-600 transition-colors"
+        <NavLink to={`/blogs/${post.slug}`} className="focus:outline-hidden">
+          <h2 
+            className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight line-clamp-2 mb-2.5 group-hover:text-blue-600 transition-colors duration-200"
             data-testid="post-card-title"
-            >
+          >
             {post.title}
           </h2>
         </NavLink>
 
-        <p className="text-gray-600 line-clamp-3 mb-6 flex-grow" data-testid="post-card-excerpt">
+        <p className="text-slate-500 text-sm sm:text-base leading-relaxed line-clamp-3 mb-5 flex-grow" data-testid="post-card-excerpt">
           {post.excerpt}
         </p>
 
-         <NavLink
-  to={`/blogs/${post.slug}`}
+        <div className="flex items-center justify-between pt-4 border-t border-slate-50 mt-auto">
+          <NavLink
+            to="/about"
+            className="flex items-center gap-2 text-slate-500 hover:text-slate-900 transition-colors focus:outline-hidden"
+            aria-label={`Author profile for ${post.author?.name || post.author}`}
+          >
+            <FaUserCircle className="w-4 h-4 text-slate-300" aria-hidden="true" />
+            <span className="text-xs font-bold text-slate-700 tracking-tight" data-testid="post-card-author">
+              {post.author?.name || post.author || "Amanuel Amare"}
+            </span>
+          </NavLink>
 
-          className="mt-auto inline-flex justify-center border-2 border-black text-black hover:bg-black hover:text-white font-semibold py-2 px-5 rounded-lg transition-all"
-          data-testid="post-card-read-more" aria-label={`Read full blog post: ${post.title}`}
-        >
-          Read Article
-        </NavLink>
+          <NavLink
+            to={`/blogs/${post.slug}`}
+            className="text-xs font-bold uppercase tracking-wider text-slate-900 hover:text-blue-600 inline-flex items-center gap-1 group/btn focus:outline-hidden"
+            data-testid="post-card-read-more" 
+            aria-label={`Read full blog post: ${post.title}`}
+          >
+            Read Post
+            <svg 
+              className="w-3.5 h-3.5 transform transition-transform duration-200 group-hover/btn:translate-x-0.5" 
+              fill="none" 
+              viewBox="0 0 24 24" 
+              stroke="currentColor" 
+              strokeWidth="2.5"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+          </NavLink>
+        </div>
+
       </div>
     </article>
   );

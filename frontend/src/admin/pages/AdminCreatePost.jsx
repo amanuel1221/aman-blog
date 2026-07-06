@@ -1,112 +1,289 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { createPost } from "../../api/postApi";
 
 const AdminCreatePost = () => {
   const navigate = useNavigate();
+  const fileInputRef = useRef(null);
+
   const [title, setTitle] = useState("");
   const [excerpt, setExcerpt] = useState("");
   const [category, setCategory] = useState("");
-  const [coverImage, setCoverImage] = useState("");
+  const [tags, setTags] = useState("");
   const [content, setContent] = useState("");
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    // TODO: integrate with backend create-post endpoint and Cloudinary image upload
-    navigate("/admin/posts");
+  const [coverImageFile, setCoverImageFile] = useState(null);
+  const [coverImagePreview, setCoverImagePreview] = useState("");
+
+  const [errors, setErrors] = useState({});
+  const [serverError, setServerError] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  const handleImageChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setCoverImageFile(file);
+    setCoverImagePreview(URL.createObjectURL(file));
   };
 
-  return (
-    <div data-testid="admin-create-post-page" className="space-y-6">
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-800">Create New Post</h1>
-          <p className="text-slate-500 mt-2">
-            Add a new blog post for review and publishing. This form will be connected to the backend later.
-          </p>
-        </div>
-      </div>
+  const validate = () => {
+    const err = {};
 
-      <form onSubmit={handleSubmit} className="space-y-6 bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
-        <div className="grid gap-6 lg:grid-cols-2">
-          <label className="space-y-2">
-            <span className="text-sm font-medium text-slate-700">Post Title</span>
+    if (!title.trim() || title.trim().length < 5 || title.trim().length > 80) {
+      err.title = "Title must be between 5 and 80 characters";
+    }
+    if (!excerpt.trim() || excerpt.trim().length > 170) {
+      err.excerpt = "Excerpt is required and must be under 170 characters";
+    }
+    if (!content.trim() || content.trim().length < 150) {
+      err.content = "Content is required and must be at least 150 characters";
+    }
+    if (!category.trim()) {
+      err.category = "Category is required";
+    }
+
+    setErrors(err);
+    return Object.keys(err).length === 0;
+  };
+
+  const handleInputChange = (setter, fieldName) => (e) => {
+    setter(e.target.value);
+    if (errors[fieldName]) {
+      setErrors((prev) => ({ ...prev, [fieldName]: "" }));
+    }
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setServerError("");
+
+    if (!validate()) return;
+
+    try {
+      setSaving(true);
+
+      const formData = new FormData();
+      formData.append("title", title.trim());
+      formData.append("excerpt", excerpt.trim());
+      formData.append("content", content.trim());
+      formData.append("category", category.trim());
+
+      const parsedTags = tags
+        .split(",")
+        .map((t) => t.trim())
+        .filter(Boolean);
+      if (parsedTags.length) {
+        formData.append("tags", JSON.stringify(parsedTags));
+      }
+
+      if (coverImageFile) {
+        formData.append("coverImage", coverImageFile);
+      }
+
+      await createPost(formData);
+      navigate("/admin/posts");
+    } catch (err) {
+      setServerError(
+        err.response?.data?.message || "Failed to create post. Please try again."
+      );
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const inputBaseStyles = "w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition duration-150 focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/10 disabled:opacity-60 disabled:cursor-not-allowed";
+  const inputErrorStyles = "border-red-300 focus:border-red-500 focus:ring-red-500/10 bg-red-50/30";
+
+  return (
+    <main data-testid="admin-create-post-page" className="max-w-4xl mx-auto space-y-6 p-1">
+      <header className="flex flex-col gap-1.5">
+        <h1 className="text-3xl font-bold text-slate-800 tracking-tight">Create New Post</h1>
+        <p className="text-slate-500 text-sm">Add a new blog post for review and publishing.</p>
+      </header>
+
+      {serverError && (
+        <div 
+          data-testid="create-post-server-error"
+          className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-600"
+          role="alert"
+        >
+          {serverError}
+        </div>
+      )}
+
+      <form 
+        onSubmit={handleSubmit} 
+        className="space-y-6 bg-white rounded-2xl border border-slate-200 p-6 shadow-sm"
+        noValidate
+      >
+        <div className="grid gap-6 md:grid-cols-2">
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="post-title" className="text-sm font-semibold text-slate-700">
+              Post Title <span className="text-red-500">*</span>
+            </label>
             <input
+              id="post-title"
+              type="text"
+              disabled={saving}
               data-testid="create-post-title"
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Enter post title"
-              className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:bg-white"
+              onChange={handleInputChange(setTitle, "title")}
+              placeholder="Enter post title (5-80 characters)"
+              className={`${inputBaseStyles} ${errors.title ? inputErrorStyles : ""}`}
             />
-          </label>
+            {errors.title && (
+              <p data-testid="error-title" className="text-xs font-medium text-red-500">{errors.title}</p>
+            )}
+          </div>
 
-          <label className="space-y-2">
-            <span className="text-sm font-medium text-slate-700">Category</span>
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="post-category" className="text-sm font-semibold text-slate-700">
+              Category <span className="text-red-500">*</span>
+            </label>
             <input
+              id="post-category"
+              type="text"
+              disabled={saving}
               data-testid="create-post-category"
               value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              placeholder="Add a category"
-              className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:bg-white"
+              onChange={handleInputChange(setCategory, "category")}
+              placeholder="e.g., Engineering, Tutorials"
+              className={`${inputBaseStyles} ${errors.category ? inputErrorStyles : ""}`}
             />
-          </label>
+            {errors.category && (
+              <p data-testid="error-category" className="text-xs font-medium text-red-500">{errors.category}</p>
+            )}
+          </div>
 
-          <label className="space-y-2">
-            <span className="text-sm font-medium text-slate-700">Cover Image URL</span>
+          <div className="flex flex-col gap-1.5 md:col-span-2 p-4 rounded-xl border border-slate-100 bg-slate-50/50">
+            <label htmlFor="post-coverimage" className="text-sm font-semibold text-slate-700">
+              Cover Image
+            </label>
             <input
+              ref={fileInputRef}
+              id="post-coverimage"
+              type="file"
+              disabled={saving}
+              accept="image/jpeg,image/jpg,image/png,image/webp"
+              onChange={handleImageChange}
               data-testid="create-post-coverimage"
-              value={coverImage}
-              onChange={(e) => setCoverImage(e.target.value)}
-              placeholder="Enter image URL or upload later"
-              className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:bg-white"
+              className="w-full text-sm text-slate-500 file:mr-4 file:rounded-lg file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-xs file:font-semibold file:text-blue-700 hover:file:bg-blue-100 file:cursor-pointer transition duration-150"
             />
-            <p className="text-xs text-slate-400">Cover image upload integration with Cloudinary will be added later.</p>
-          </label>
+            
+            {coverImagePreview && (
+              <div className="mt-2 relative inline-block">
+                <img
+                  src={coverImagePreview}
+                  alt="Cover layout visual preview"
+                  data-testid="create-post-image-preview"
+                  className="h-40 w-full max-w-sm rounded-xl object-cover border border-slate-200 shadow-sm"
+                />
+              </div>
+            )}
+            <p className="text-xs text-slate-400 mt-1">JPEG, PNG or WEBP up to 5MB. Optimizes via CDN on save.</p>
+          </div>
+
+          <div className="flex flex-col gap-1.5 md:col-span-2">
+            <label htmlFor="post-tags" className="text-sm font-semibold text-slate-700">
+              Tags <span className="text-xs font-normal text-slate-400">(comma separated)</span>
+            </label>
+            <input
+              id="post-tags"
+              type="text"
+              disabled={saving}
+              data-testid="create-post-tags"
+              value={tags}
+              onChange={(e) => setTags(e.target.value)}
+              placeholder="e.g., react, javascript, architecture"
+              className={inputBaseStyles}
+            />
+          </div>
         </div>
 
-        <label className="space-y-2">
-          <span className="text-sm font-medium text-slate-700">Excerpt</span>
+        <div className="flex flex-col gap-1.5">
+          <div className="flex justify-between items-center">
+            <label htmlFor="post-excerpt" className="text-sm font-semibold text-slate-700">
+              Excerpt <span className="text-red-500">*</span>
+            </label>
+            <span className={`text-xs ${excerpt.trim().length > 170 ? "text-red-500 font-medium" : "text-slate-400"}`}>
+              {excerpt.trim().length}/170 max chars
+            </span>
+          </div>
           <textarea
+            id="post-excerpt"
+            disabled={saving}
             data-testid="create-post-excerpt"
             value={excerpt}
-            onChange={(e) => setExcerpt(e.target.value)}
-            placeholder="Write a short summary of the post"
-            rows={4}
-            className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:bg-white"
+            onChange={handleInputChange(setExcerpt, "excerpt")}
+            placeholder="Write a clear summary of the post for card listings..."
+            rows={3}
+            className={`${inputBaseStyles} resize-y ${errors.excerpt ? inputErrorStyles : ""}`}
           />
-        </label>
+          {errors.excerpt && (
+            <p data-testid="error-excerpt" className="text-xs font-medium text-red-500">{errors.excerpt}</p>
+          )}
+        </div>
 
-        <label className="space-y-2">
-          <span className="text-sm font-medium text-slate-700">Content</span>
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="post-content" className="text-sm font-semibold text-slate-700">
+            Body Content <span className="text-red-500">*</span>
+          </label>
           <textarea
+            id="post-content"
+            disabled={saving}
             data-testid="create-post-content"
             value={content}
-            onChange={(e) => setContent(e.target.value)}
-            placeholder="Write your blog content here"
-            rows={10}
-            className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:bg-white"
+            onChange={handleInputChange(setContent, "content")}
+            placeholder="Write your beautiful deep dive article details here..."
+            rows={12}
+            className={`${inputBaseStyles} font-sans resize-y px-4 py-4 rounded-xl ${errors.content ? inputErrorStyles : ""}`}
           />
-        </label>
+          {errors.content && (
+            <p data-testid="error-content" className="text-xs font-medium text-red-500">{errors.content}</p>
+          )}
+        </div>
 
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-sm text-slate-500">This form is not yet connected to the backend.</p>
-          <div className="flex flex-wrap gap-3">
+        <footer className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between pt-4 border-t border-slate-100">
+          <p 
+            data-testid="content-char-counter"
+            className={`text-sm ${content.trim().length >= 150 ? "text-emerald-600 font-medium" : "text-slate-500"}`}
+          >
+            {content.trim().length} / 150 min characters required
+          </p>
+          
+          <div className="flex items-center gap-3 ml-auto">
             <button
               type="button"
+              disabled={saving}
               onClick={() => navigate("/admin/posts")}
-              className="rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+              data-testid="create-post-cancel"
+              className="rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 transition duration-150 hover:bg-slate-50 disabled:opacity-50"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="rounded-2xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-500/10 transition hover:bg-blue-700"
+              disabled={saving}
+              data-testid="create-post-submit"
+              className="inline-flex items-center justify-center min-w-[110px] rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition duration-150 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed"
             >
-              Save Post
+              {saving ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                  Saving...
+                </>
+              ) : (
+                "Save Post"
+              )}
             </button>
           </div>
-        </div>
+        </footer>
       </form>
-    </div>
+    </main>
   );
 };
 
