@@ -1,137 +1,336 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { dashboardData } from "../data/mockDashboardData";
+
+import { getPostById, updatePost } from "../../api/postApi";
 
 const AdminEditPost = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const postId = Number(id);
-  const post = dashboardData.topPosts.find((item) => item.id === postId);
+  const fileInputRef = useRef(null);
 
-  const [title, setTitle] = useState("");
-  const [excerpt, setExcerpt] = useState("");
-  const [category, setCategory] = useState("");
-  const [coverImage, setCoverImage] = useState("");
-  const [content, setContent] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [serverError, setServerError] = useState("");
 
+  const [form, setForm] = useState({
+    title: "",
+    excerpt: "",
+    category: "",
+    tags: "",
+    content: "",
+  });
+
+  const [existingCoverUrl, setExistingCoverUrl] = useState("");
+  const [coverImageFile, setCoverImageFile] = useState(null);
+  const [coverImagePreview, setCoverImagePreview] = useState("");
+
+  const [errors, setErrors] = useState({});
+
+  // FETCH POST
   useEffect(() => {
-    if (post) {
-      setTitle(post.title || "");
-      setExcerpt(post.excerpt || "");
-      setCategory(post.category || "");
-      setCoverImage(post.coverImage || "");
-      setContent(post.content || "");
-    }
-  }, [post]);
+    const loadPost = async () => {
+      try {
+        const res = await getPostById(id);
+        const post = res.data.post;
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    navigate("/admin/posts");
+        setForm({
+          title: post.title || "",
+          excerpt: post.excerpt || "",
+          category: post.category || "",
+          tags: Array.isArray(post.tags) ? post.tags.join(", ") : "",
+          content: post.content || "",
+        });
+
+        setExistingCoverUrl(post.coverImage?.url || "");
+      } catch (err) {
+        setServerError("Failed to load post. Please try refreshing.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadPost();
+  }, [id]);
+
+  // VALIDATION
+  const validate = () => {
+    const err = {};
+
+    if (!form.title.trim()) err.title = "Title is required";
+    if (!form.category.trim()) err.category = "Category is required";
+    if (!form.content.trim()) err.content = "Content is required";
+    if (form.content.trim() && form.content.trim().length < 150) {
+      err.content = `Content must be at least 150 characters (currently ${form.content.trim().length})`;
+    }
+
+    setErrors(err);
+    return Object.keys(err).length === 0;
   };
 
-  if (!post) {
+  // CHANGE HANDLERS
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+    if (errors[e.target.name]) {
+      setErrors({ ...errors, [e.target.name]: "" });
+    }
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setCoverImageFile(file);
+    setCoverImagePreview(URL.createObjectURL(file));
+  };
+
+  // SUBMIT
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setServerError("");
+
+    if (!validate()) return;
+
+    try {
+      setSaving(true);
+
+      const formData = new FormData();
+      formData.append("title", form.title.trim());
+      formData.append("excerpt", form.excerpt.trim());
+      formData.append("content", form.content.trim());
+      formData.append("category", form.category.trim());
+
+      const parsedTags = form.tags
+        .split(",")
+        .map((t) => t.trim())
+        .filter(Boolean);
+      if (parsedTags.length) {
+        formData.append("tags", JSON.stringify(parsedTags));
+      }
+
+      if (coverImageFile) {
+        formData.append("coverImage", coverImageFile);
+      }
+
+      await updatePost(id, formData);
+      navigate("/admin/posts");
+    } catch (err) {
+      setServerError(
+        err.response?.data?.message || "Update failed. Please try again."
+      );
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (loading) {
     return (
-      <div data-testid="admin-edit-post-not-found" className="rounded-3xl border border-red-200 bg-red-50 p-6 text-red-700">
-        <h1 className="text-2xl font-semibold">Post not found</h1>
-        <p className="mt-2">We couldn't find a post with this ID. Please return to the posts dashboard.</p>
-        <button
-          type="button"
-          onClick={() => navigate("/admin/posts")}
-          className="mt-4 rounded-2xl bg-red-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-red-700"
-        >
-          Back to posts
-        </button>
+      <div 
+        data-testid="loading-state" 
+        className="flex flex-col items-center justify-center min-h-[400px] space-y-3"
+      >
+        <div className="w-10 h-10 border-4 border-slate-200 border-t-blue-600 rounded-full animate-spin" />
+        <p className="text-slate-500 font-medium animate-pulse">Loading post details...</p>
       </div>
     );
   }
 
+  // Input styles reusable configurations
+  const baseInputStyles = "w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-slate-900 placeholder-slate-400 shadow-sm transition duration-150 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:bg-slate-50 disabled:text-slate-500";
+  const errorInputStyles = "border-red-300 focus:border-red-500 focus:ring-red-500/20";
+
   return (
-    <div data-testid="admin-edit-post-page" className="space-y-6">
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-800">Edit Post</h1>
-          <p className="text-slate-500 mt-2">
-            Update post details and metadata before sending changes to the backend.
-          </p>
-        </div>
-      </div>
+    <main className="max-w-4xl mx-auto p-6 bg-white rounded-xl shadow-sm border border-slate-100">
+      <header className="mb-6 pb-4 border-b border-slate-100">
+        <h1 className="text-2xl font-bold text-slate-800">Edit Post</h1>
+        <p className="text-sm text-slate-500 mt-1">Modify your post settings, images, and content metadata.</p>
+      </header>
 
-      <form onSubmit={handleSubmit} className="space-y-6 bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
-        <div className="grid gap-6 lg:grid-cols-2">
-          <label className="space-y-2">
-            <span className="text-sm font-medium text-slate-700">Post Title</span>
+      <form 
+        onSubmit={handleSubmit} 
+        data-testid="admin-edit-post-form" 
+        className="space-y-6"
+        noValidate
+      >
+        {serverError && (
+          <div 
+            data-testid="server-error"
+            className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700 font-medium"
+            role="alert"
+          >
+            {serverError}
+          </div>
+        )}
+
+        {/* Title Grid Section */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-1.5">
+            <label htmlFor="title" className="text-sm font-semibold text-slate-700">
+              Post Title <span className="text-red-500">*</span>
+            </label>
             <input
-              data-testid="edit-post-title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:bg-white"
+              id="title"
+              name="title"
+              type="text"
+              value={form.title}
+              onChange={handleChange}
+              disabled={saving}
+              placeholder="e.g., Understanding Modern React Architecture"
+              data-testid="input-title"
+              className={`${baseInputStyles} ${errors.title ? errorInputStyles : ""}`}
             />
-          </label>
+            {errors.title && (
+              <p data-testid="error-title" className="text-xs font-medium text-red-600 mt-1">{errors.title}</p>
+            )}
+          </div>
 
-          <label className="space-y-2">
-            <span className="text-sm font-medium text-slate-700">Category</span>
+          <div className="space-y-1.5">
+            <label htmlFor="category" className="text-sm font-semibold text-slate-700">
+              Category <span className="text-red-500">*</span>
+            </label>
             <input
-              data-testid="edit-post-category"
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:bg-white"
+              id="category"
+              name="category"
+              type="text"
+              value={form.category}
+              onChange={handleChange}
+              disabled={saving}
+              placeholder="e.g., Development"
+              data-testid="input-category"
+              className={`${baseInputStyles} ${errors.category ? errorInputStyles : ""}`}
             />
-          </label>
-
-          <label className="space-y-2">
-            <span className="text-sm font-medium text-slate-700">Cover Image URL</span>
-            <input
-              data-testid="edit-post-coverimage"
-              value={coverImage}
-              onChange={(e) => setCoverImage(e.target.value)}
-              className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:bg-white"
-            />
-            <p className="text-xs text-slate-400">Cloudinary integration for image uploads will be added later.</p>
-          </label>
-        </div>
-
-        <label className="space-y-2">
-          <span className="text-sm font-medium text-slate-700">Excerpt</span>
-          <textarea
-            data-testid="edit-post-excerpt"
-            value={excerpt}
-            onChange={(e) => setExcerpt(e.target.value)}
-            rows={4}
-            className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:bg-white"
-          />
-        </label>
-
-        <label className="space-y-2">
-          <span className="text-sm font-medium text-slate-700">Content</span>
-          <textarea
-            data-testid="edit-post-content"
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            rows={10}
-            className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:bg-white"
-          />
-        </label>
-
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-sm text-slate-500">Changes are stored locally in this preview mode.</p>
-          <div className="flex flex-wrap gap-3">
-            <button
-              type="button"
-              onClick={() => navigate("/admin/posts")}
-              className="rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="rounded-2xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-500/10 transition hover:bg-blue-700"
-            >
-              Update Post
-            </button>
+            {errors.category && (
+              <p data-testid="error-category" className="text-xs font-medium text-red-600 mt-1">{errors.category}</p>
+            )}
           </div>
         </div>
+
+        {/* Excerpt Section */}
+        <div className="space-y-1.5">
+          <label htmlFor="excerpt" className="text-sm font-semibold text-slate-700">
+            Excerpt / Summary
+          </label>
+          <input
+            id="excerpt"
+            name="excerpt"
+            type="text"
+            value={form.excerpt}
+            onChange={handleChange}
+            disabled={saving}
+            placeholder="Provide a short sentence summary for your card feeds..."
+            data-testid="input-excerpt"
+            className={baseInputStyles}
+          />
+        </div>
+
+        {/* Tags Section */}
+        <div className="space-y-1.5">
+          <label htmlFor="tags" className="text-sm font-semibold text-slate-700">
+            Tags
+          </label>
+          <input
+            id="tags"
+            name="tags"
+            type="text"
+            value={form.tags}
+            onChange={handleChange}
+            disabled={saving}
+            placeholder="javascript, react, frontend (comma separated)"
+            data-testid="input-tags"
+            className={baseInputStyles}
+          />
+        </div>
+
+        {/* Media Layout Segment */}
+        <section className="p-4 rounded-xl border border-slate-200 bg-slate-50/50 space-y-4">
+          <header>
+            <h2 className="text-sm font-semibold text-slate-700">Cover Image</h2>
+            <p className="text-xs text-slate-400">Accepted resolutions are PNG, JPEG, JPG, and WebP.</p>
+          </header>
+          
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            {(coverImagePreview || existingCoverUrl) && (
+              <img
+                src={coverImagePreview || existingCoverUrl}
+                alt="Post layout visualization"
+                data-testid="image-preview"
+                className="h-28 w-44 rounded-lg object-cover border border-slate-300 bg-white shadow-sm"
+              />
+            )}
+            <div className="w-full sm:w-auto">
+              <input
+                ref={fileInputRef}
+                id="coverImage"
+                type="file"
+                accept="image/jpeg,image/jpg,image/png,image/webp"
+                onChange={handleImageChange}
+                disabled={saving}
+                data-testid="input-file"
+                className="block w-full text-sm text-slate-500
+                  file:mr-4 file:py-2 file:px-4
+                  file:rounded-md file:border-0
+                  file:text-sm file:font-semibold
+                  file:bg-slate-200 file:text-slate-700
+                  hover:file:bg-slate-300 file:cursor-pointer transition duration-150"
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* Core Rich Content Area */}
+        <div className="space-y-1.5">
+          <div className="flex justify-between items-center">
+            <label htmlFor="content" className="text-sm font-semibold text-slate-700">
+              Body Content <span className="text-red-500">*</span>
+            </label>
+            <span className="text-xs text-slate-400">
+              Min 150 chars ({form.content.trim().length})
+            </span>
+          </div>
+          <textarea
+            id="content"
+            name="content"
+            value={form.content}
+            onChange={handleChange}
+            disabled={saving}
+            placeholder="Write your beautiful content right here..."
+            rows={12}
+            data-testid="input-content"
+            className={`${baseInputStyles} font-sans resize-y ${errors.content ? errorInputStyles : ""}`}
+          />
+          {errors.content && (
+            <p data-testid="error-content" className="text-xs font-medium text-red-600 mt-1">{errors.content}</p>
+          )}
+        </div>
+
+        {/* Submission Management Panel */}
+        <footer className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+          <button
+            type="button"
+            onClick={() => navigate("/admin/posts")}
+            disabled={saving}
+            data-testid="btn-cancel"
+            className="px-5 py-2.5 rounded-lg border border-slate-300 text-sm font-medium text-slate-700 hover:bg-slate-50 transition duration-150 disabled:opacity-50"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            disabled={saving}
+            data-testid="btn-submit"
+            className="flex items-center justify-center min-w-[120px] bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 text-sm font-semibold rounded-lg transition duration-150 shadow-sm disabled:bg-blue-400 disabled:cursor-not-allowed"
+          >
+            {saving ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
+                Updating...
+              </>
+            ) : (
+              "Update Post"
+            )}
+          </button>
+        </footer>
       </form>
-    </div>
+    </main>
   );
 };
 
