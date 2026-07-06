@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { FaCheckCircle, FaMapMarkerAlt, FaGithub, FaLinkedin, FaTwitter, FaEnvelope } from "react-icons/fa";
 import { SiHackerrank } from "react-icons/si";
+import {submitContactMessage} from "../api/contactApi";
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -63,22 +64,8 @@ const Contact = () => {
     };
 
     try {
-      // Replace with your backend API endpoint
-      const response = await fetch(import.meta.env.VITE_API_URL || "/api/contact", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(emailData),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to send message");
-      }
-
-      const data = await response.json();
-      
-      setSuccess(data.message || "Message sent successfully 🚀 I'll get back to you soon.");
+      const response = await submitContactMessage(emailData);
+      setSuccess(response.data.message || "Message sent successfully 🚀 I'll get back to you soon.");
 
       setFormData({
         name: "",
