@@ -1,22 +1,14 @@
-import {
-  ResponsiveContainer,
-  PieChart as RePieChart,
-  Pie,
-  Cell,
-  Tooltip,
-  Legend,
-} from "recharts";
+import { ResponsiveContainer, PieChart as RePieChart, Pie, Cell, Tooltip, Legend, } from "recharts";
 
 const COLORS = [
-  "#2563EB", // Blue
-  "#22C55E", // Green
-  "#F97316", // Orange
+  "#2563EB",
+  "#22C55E",
+  "#F97316",
 ];
 
 const PieChart = ({ data }) => {
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-      {/* Header */}
       <div className="mb-6">
         <h2 className="text-xl font-semibold text-gray-800">
           Engagement Breakdown
@@ -27,7 +19,6 @@ const PieChart = ({ data }) => {
         </p>
       </div>
 
-      {/* Chart */}
       <div className="w-full h-96">
         <ResponsiveContainer width="100%" height="100%">
           <RePieChart>

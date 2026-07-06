@@ -1,18 +1,8 @@
-import {
-  ResponsiveContainer,
-  LineChart as ReLineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-} from "recharts";
+import { ResponsiveContainer, LineChart as ReLineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, } from "recharts";
 
 const LineChart = ({ data }) => {
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-      {/* Header */}
       <div className="mb-6">
         <h2 className="text-xl font-semibold text-gray-800">
           Monthly Activity
@@ -23,7 +13,6 @@ const LineChart = ({ data }) => {
         </p>
       </div>
 
-      {/* Chart */}
       <div className="w-full h-96">
         <ResponsiveContainer width="100%" height="100%">
           <ReLineChart
