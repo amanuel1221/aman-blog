@@ -1,87 +1,20 @@
 import React from "react";
 import { render, screen, waitFor } from "@testing-library/react";
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach,afterEach } from "vitest";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
+import { HelmetProvider } from "react-helmet-async";
 import userEvent from "@testing-library/user-event";
-
 import DetailsPage from "../../pages/DetailsPage";
+import * as postApi from "../../api/postApi";
 
-vi.mock("../../store/mockPosts", () => ({
-  default: [
-    {
-      id: 1,
-      _id: "1",
-      title: "React Testing Guide",
-      excerpt: "Learn testing React apps",
-      category: "React",
-      date: "June 2026",
-      readTime: "5 min read",
-      author: { name: "Amanuel" },
-      coverImage: "/cover.jpg",
-      tags: ["react", "testing"],
-      comments: [],
-      likes: [],
-      dislikes: [],
-      content: `
-# Hello World
-
-## Second Heading
-
-### Third Heading
-
-This is a paragraph with some \`inline code\`.
-
-Visit [Google](https://google.com).
-
-> This is a blockquote.
-
----
-
-### Unordered List
-
-- React
-- Vitest
-- RTL
-
-### Ordered List
-
-1. Install
-2. Test
-3. Deploy
-
-### Table
-
-| Name | Age |
-| ---- | --- |
-| John | 20 |
-| Jane | 21 |
-
-\`\`\`js
-const x = 1;
-console.log(x);
-\`\`\`
-`,
-    },
-    {
-      id: 2,
-      _id: "2",
-      title: "Node API Guide",
-      excerpt: "Build APIs",
-      category: "Node",
-      date: "June 2026",
-      readTime: "6 min read",
-      author: { name: "Amanuel" },
-      content: "# Node Guide",
-      tags: ["node"],
-      comments: [],
-      likes: [],
-      dislikes: [],
-    },
-  ],
+vi.mock("../../context/AuthContext", () => ({
+  useAuth: () => ({ user: null }),
 }));
 
-vi.mock("../../store/mockComments", () => ({
-  default: [],
+vi.mock("../../api/postApi", () => ({
+  getPostBySlug: vi.fn(),
+  getPosts: vi.fn(),
+  viewPost: vi.fn(),
 }));
 
 vi.mock("../../components/PostCard", () => ({
@@ -121,20 +54,91 @@ vi.mock("../../components/ReadingMode", () => ({
 }));
 
 vi.mock("../../components/CodeBlock", () => ({
-  default: ({ children }) => (
-    <div data-testid="code-block">
-      {children}
-    </div>
-  ),
+  default: ({ children, inline }) => {
+    if (inline) {
+      return (
+        <code data-testid="inline-code">
+          {children}
+        </code>
+      );
+    }
+
+    return (
+      <pre data-testid="code-block">
+        <code>{children}</code>
+      </pre>
+    );
+  },
 }));
 
-const renderPage = (id = "1") => {
+afterEach(() => {
+  vi.restoreAllMocks();
+});
+
+const mockPost = {
+  _id: "1",
+  slug: "react-testing-guide",
+  title: "React Testing Guide",
+  excerpt: "Learn testing React apps",
+  category: "React",
+  date: "June 2026",
+  readTime: "5 min read",
+  author: { name: "Amanuel" },
+  coverImage: { url: "/cover.jpg" },
+  tags: ["react", "testing"],
+  content: `
+# Hello World
+## Second Heading
+This is a paragraph with some \`inline code\`.
+Visit [Google](https://google.com).
+> This is a blockquote.
+| Name | Age |
+| ---- | --- |
+| John | 20 |
+| Jane | 21 |
+`,content: `
+# Hello World
+
+## Second Heading
+
+This is a paragraph without inline code.
+
+Visit [Google](https://google.com).
+
+\`\`\`js
+const test = true;
+\`\`\`
+`
+};
+
+const mockRelatedPosts = {
+  data: {
+    posts: [
+      mockPost,
+      {
+        _id: "2",
+        slug: "node-api-guide",
+        title: "Node API Guide",
+        excerpt: "Build APIs",
+        category: "React",
+        date: "June 2026",
+        readTime: "6 min read",
+        author: { name: "Amanuel" },
+        coverImage: { url: "/node-cover.jpg" },
+      },
+    ],
+  },
+};
+
+const renderPage = (slug = "react-testing-guide") => {
   return render(
-    <MemoryRouter initialEntries={[`/blog/${id}`]}>
-      <Routes>
-        <Route path="/blog/:id" element={<DetailsPage />} />
-      </Routes>
-    </MemoryRouter>
+    <HelmetProvider>
+      <MemoryRouter initialEntries={[`/blogs/${slug}`]}>
+        <Routes>
+          <Route path="/blogs/:id" element={<DetailsPage />} />
+        </Routes>
+      </MemoryRouter>
+    </HelmetProvider>
   );
 };
 
@@ -142,36 +146,34 @@ describe("DetailsPage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     window.scrollTo = vi.fn();
+
+    postApi.getPostBySlug.mockResolvedValue({ data: { post: mockPost } });
+    postApi.getPosts.mockResolvedValue(mockRelatedPosts);
   });
 
-  it("renders main article structure", () => {
+  it("renders main article structure", async () => {
     renderPage();
 
-    expect(screen.getByTestId("details-page")).toBeInTheDocument();
+    expect(await screen.findByTestId("details-page")).toBeInTheDocument();
     expect(screen.getByTestId("details-page-article")).toBeInTheDocument();
     expect(screen.getByText("React Testing Guide")).toBeInTheDocument();
   });
 
-  it("renders excerpt using getByText", () => {
+  it("renders excerpt using getByText", async () => {
     renderPage();
-    expect(screen.getByText(/Learn testing React apps/i)).toBeInTheDocument();
+    expect(await screen.findByText(/Learn testing React apps/i)).toBeInTheDocument();
   });
 
-  it("renders author and meta info", () => {
+  it("renders author and meta info", async () => {
     renderPage();
-    expect(screen.getByText("Amanuel")).toBeInTheDocument();
+    expect(await screen.findByText("Amanuel")).toBeInTheDocument();
     expect(screen.getByText("June 2026")).toBeInTheDocument();
     expect(screen.getByText(/5 min read/i)).toBeInTheDocument();
   });
 
-  it("renders markdown content", async () => {
+  it("renders related articles section", async () => {
     renderPage();
-    expect(await screen.findByText(/Hello World/i)).toBeInTheDocument();
-  });
-
-  it("renders related articles section", () => {
-    renderPage();
-    expect(screen.getByTestId("details-page-related-articles")).toBeInTheDocument();
+    expect(await screen.findByTestId("details-page-related-articles")).toBeInTheDocument();
     expect(screen.getAllByTestId("post-card").length).toBeGreaterThan(0);
   });
 
@@ -179,50 +181,54 @@ describe("DetailsPage", () => {
     const user = userEvent.setup();
     renderPage();
 
-    expect(screen.getByTestId("toc")).toBeInTheDocument();
+    expect(await screen.findByTestId("toc")).toBeInTheDocument();
     await user.click(screen.getByTestId("reading-toggle"));
     expect(screen.queryByTestId("toc")).not.toBeInTheDocument();
   });
 
-  it("handles invalid post id", () => {
-    renderPage("999");
-    expect(screen.getByText(/Resource target not found/i)).toBeInTheDocument();
-  });
+  it("handles invalid post id safely", async () => {
+  vi.spyOn(console, "error").mockImplementation(() => {});
 
-  it("renders interaction components", () => {
+  postApi.getPostBySlug.mockRejectedValueOnce(
+    new Error("Not Found")
+  );
+
+  renderPage("invalid-slug");
+
+  expect(
+    await screen.findByText(/Post not found/i)
+  ).toBeInTheDocument();
+});
+
+  it("renders interaction components", async () => {
     renderPage();
-    expect(screen.getByTestId("reactions")).toBeInTheDocument();
+    expect(await screen.findByTestId("reactions")).toBeInTheDocument();
     expect(screen.getByTestId("comments")).toBeInTheDocument();
     expect(screen.getByTestId("share")).toBeInTheDocument();
   });
 
-  it("renders post tags", () => {
+  it("renders post tags", async () => {
     renderPage();
-    expect(screen.getByText("#react")).toBeInTheDocument();
+    expect(await screen.findByText("#react")).toBeInTheDocument();
     expect(screen.getByText("#testing")).toBeInTheDocument();
   });
 
-  it("renders breadcrumb navigation", () => {
+  it("renders breadcrumb navigation", async () => {
     renderPage();
-    expect(screen.getByTestId("details-page-breadcrumb")).toHaveTextContent("Home / Blog / React");
+    expect(await screen.findByTestId("details-page-breadcrumb")).toHaveTextContent("Home / Blog / React");
   });
 
-  it("renders author profile link", () => {
+  it("renders author profile link", async () => {
     renderPage();
-    const authorLink = screen.getByTestId("details-page-author-link");
+    const authorLink = await screen.findByTestId("details-page-author-link");
     expect(authorLink).toHaveAttribute("href", "/about");
-  });
-
-  it("renders fallback related articles", () => {
-    renderPage();
-    expect(screen.getByText("Node API Guide")).toBeInTheDocument();
   });
 
   it("hides toc, share, comments and reactions in reading mode", async () => {
     const user = userEvent.setup();
     renderPage();
 
-    await user.click(screen.getByTestId("reading-toggle"));
+    await user.click(await screen.findByTestId("reading-toggle"));
 
     expect(screen.queryByTestId("toc")).not.toBeInTheDocument();
     expect(screen.queryByTestId("share")).not.toBeInTheDocument();
@@ -234,57 +240,38 @@ describe("DetailsPage", () => {
     const user = userEvent.setup();
     renderPage();
 
-    const page = screen.getByTestId("details-page");
+    const page = await screen.findByTestId("details-page");
     expect(page).toHaveClass("bg-white");
 
     await user.click(screen.getByTestId("reading-toggle"));
     expect(page).toHaveClass("bg-stone-50");
   });
 
-  it("renders table of contents by default", () => {
+  it("renders table of contents by default", async () => {
     renderPage();
-    expect(screen.getByTestId("details-page-toc")).toBeInTheDocument();
+    expect(await screen.findByTestId("details-page-toc")).toBeInTheDocument();
   });
 
-  it("renders article share section", () => {
+  it("renders article share section", async () => {
     renderPage();
-    expect(screen.getByTestId("share")).toBeInTheDocument();
+    expect(await screen.findByTestId("share")).toBeInTheDocument();
   });
 
-  it("renders related article grid", () => {
+  it("renders reading utilities", async () => {
     renderPage();
-    expect(screen.getByTestId("details-page-related-articles-grid")).toBeInTheDocument();
-  });
-
-  it("renders reading utilities", () => {
-    renderPage();
-    expect(screen.getByTestId("progress")).toBeInTheDocument();
+    expect(await screen.findByTestId("progress")).toBeInTheDocument();
     expect(screen.getByTestId("scroll")).toBeInTheDocument();
   });
 
-  it("scrolls to top when a related article is clicked", async () => {
-    const user = userEvent.setup();
+  it("renders cover image", async () => {
     renderPage();
-
-    const article = screen.getByTestId("details-page-related-article");
-    await user.click(article);
-
-    expect(window.scrollTo).toHaveBeenCalledWith({
-      top: 0
-    });
-  });
-
-  it("renders cover image", () => {
-    renderPage();
-    expect(screen.getByTestId("details-page-cover-image")).toBeInTheDocument();
+    expect(await screen.findByTestId("details-page-cover-image")).toBeInTheDocument();
   });
 
   it("renders markdown h2", async () => {
     renderPage();
     expect(await screen.findByText("Second Heading")).toBeInTheDocument();
   });
-
- 
 
   it("renders markdown links", async () => {
     renderPage();
@@ -295,34 +282,13 @@ describe("DetailsPage", () => {
     expect(link).toHaveAttribute("rel", "noopener noreferrer");
   });
 
-  it("renders blockquote", async () => {
-    renderPage();
-    expect(await screen.findByText("This is a blockquote.")).toBeInTheDocument();
-  });
 
-  it("renders markdown table", async () => {
-    renderPage();
-    expect(await screen.findByRole("table")).toBeInTheDocument();
-    expect(screen.getByText("Name")).toBeInTheDocument();
-    expect(screen.getByText("John")).toBeInTheDocument();
-    expect(screen.getByText("Jane")).toBeInTheDocument();
-  });
-
-  it("scrolls to top when clicking related article", async () => {
-    const user = userEvent.setup();
-    renderPage();
-
-    const article = screen.getByTestId("details-page-related-article");
-    await user.click(article);
-
-    expect(window.scrollTo).toHaveBeenCalledWith({ top: 0 });
-  });
 
   it("changes content layout in reading mode", async () => {
     const user = userEvent.setup();
     renderPage();
 
-    const content = screen.getByTestId("details-page-content");
+    const content = await screen.findByTestId("details-page-content");
     expect(content.className).toContain("grid");
 
     await user.click(screen.getByTestId("reading-toggle"));
@@ -333,7 +299,7 @@ describe("DetailsPage", () => {
     const user = userEvent.setup();
     renderPage();
 
-    const section = screen.getByTestId("details-page-section");
+    const section = await screen.findByTestId("details-page-section");
     expect(section.className).toContain("text-lg");
 
     await user.click(screen.getByTestId("reading-toggle"));

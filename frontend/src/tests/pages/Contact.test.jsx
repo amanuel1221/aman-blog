@@ -3,6 +3,12 @@ import { test, expect, vi, beforeEach } from "vitest";
 import userEvent from "@testing-library/user-event";
 import Contact from "../../pages/Contact";
 import { MemoryRouter } from "react-router-dom";
+import * as contactApi from "../../api/contactApi";
+
+// Explicitly mock the contact API layer module
+vi.mock("../../api/contactApi", () => ({
+  submitContactMessage: vi.fn(),
+}));
 
 beforeEach(() => {
   vi.restoreAllMocks();
@@ -15,12 +21,10 @@ test("renders contact section and heading", () => {
     </MemoryRouter>
   );
 
-
   expect(
     screen.getByText(/have a project in mind or just want to say hello/i)
   ).toBeInTheDocument();
 });
-
 
 test("form renders correctly", () => {
   render(
@@ -35,7 +39,6 @@ test("form renders correctly", () => {
   expect(screen.getByTestId("input-company")).toBeInTheDocument();
   expect(screen.getByTestId("input-message")).toBeInTheDocument();
 });
-
 
 test("validates empty form", async () => {
   const user = userEvent.setup();
@@ -85,15 +88,12 @@ test("validates wrong inputs", async () => {
 });
 
 test("successful form submission", async () => {
-  global.fetch = vi.fn(() =>
-    Promise.resolve({
-      ok: true,
-      json: () =>
-        Promise.resolve({
-          message: "Message sent successfully 🚀 I'll get back to you soon.",
-        }),
-    })
-  );
+  // Correctly mock the specific API utility function response frame
+  contactApi.submitContactMessage.mockResolvedValueOnce({
+    data: {
+      message: "Message sent successfully 🚀 I'll get back to you soon.",
+    },
+  });
 
   const user = userEvent.setup();
 
@@ -113,7 +113,6 @@ test("successful form submission", async () => {
     await screen.findByText(/message sent successfully/i)
   ).toBeInTheDocument();
 });
-
 
 test("social links exist and have correct attributes", () => {
   render(
@@ -136,7 +135,6 @@ test("social links exist and have correct attributes", () => {
   expect(screen.getByTestId("hacker-rank")).toBeInTheDocument();
   expect(screen.getByTestId("email")).toBeInTheDocument();
 });
-
 
 test("CV download button exists", () => {
   render(
