@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Allow: /blogs
+Disallow: /admin/
+Disallow: /api/
+
+# Point search engines directly to your sitemap
+Sitemap: https://aman-blog-q9sde5ao0-amanuel-amares-projects.vercel.app/sitemap.xml
