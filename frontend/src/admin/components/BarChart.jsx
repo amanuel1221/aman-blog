@@ -1,21 +1,30 @@
-import { ResponsiveContainer, LineChart as ReLineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, } from "recharts";
+import {
+  ResponsiveContainer,
+  BarChart as ReBarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+} from "recharts";
 
-const LineChart = ({ data }) => {
+const BarChart = ({ data }) => {
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
       <div className="mb-6">
         <h2 className="text-xl font-semibold text-gray-800">
-          Monthly Activity
+          Top Performing Posts
         </h2>
 
         <p className="text-sm text-gray-500 mt-1">
-          Posts, comments and messages over time.
+          Views, likes and comments for your best posts.
         </p>
       </div>
 
       <div className="w-full h-96">
         <ResponsiveContainer width="100%" height="100%">
-          <ReLineChart
+          <ReBarChart
             data={data}
             margin={{
               top: 10,
@@ -26,7 +35,16 @@ const LineChart = ({ data }) => {
           >
             <CartesianGrid strokeDasharray="3 3" />
 
-            <XAxis dataKey="month" />
+            <XAxis
+              dataKey="title"
+              tick={{
+                fontSize: 12,
+              }}
+              interval={0}
+              angle={-15}
+              textAnchor="end"
+              height={70}
+            />
 
             <YAxis />
 
@@ -34,40 +52,31 @@ const LineChart = ({ data }) => {
 
             <Legend />
 
-            <Line
-              type="monotone"
-              dataKey="posts"
-              name="Posts"
-              stroke="#2563EB"
-              strokeWidth={3}
-              dot={{ r: 4 }}
-              activeDot={{ r: 6 }}
+            <Bar
+              dataKey="views"
+              name="Views"
+              radius={[6, 6, 0, 0]}
+              fill="#1D4ED8"
             />
 
-            <Line
-              type="monotone"
+            <Bar
+              dataKey="likes"
+              name="Likes"
+              radius={[6, 6, 0, 0]}
+              fill="#3B82F6"
+            />
+
+            <Bar
               dataKey="comments"
               name="Comments"
-              stroke="#22C55E"
-              strokeWidth={3}
-              dot={{ r: 4 }}
-              activeDot={{ r: 6 }}
+              radius={[6, 6, 0, 0]}
+              fill="#60A5FA"
             />
-
-            <Line
-              type="monotone"
-              dataKey="messages"
-              name="Messages"
-              stroke="#F97316"
-              strokeWidth={3}
-              dot={{ r: 4 }}
-              activeDot={{ r: 6 }}
-            />
-          </ReLineChart>
+          </ReBarChart>
         </ResponsiveContainer>
       </div>
     </div>
   );
 };
 
-export default LineChart;
+export default BarChart;
