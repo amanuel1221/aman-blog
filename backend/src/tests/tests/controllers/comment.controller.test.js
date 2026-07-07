@@ -192,30 +192,31 @@ describe("Comment Controller", () => {
 
   describe("deleteComment", () => {
     it("should delete comment successfully", async () => {
-      req.params.id = "comment1";
-      req.user._id = "user1";
+  req.params.id = "comment1";
+  req.user._id = "user1";
+  req.user.role = "user";
 
-      vi.spyOn(commentService, "deleteComment")
-        .mockResolvedValue();
+  vi.spyOn(commentService, "deleteComment")
+    .mockResolvedValue();
 
-      await deleteComment(req, res);
+  await deleteComment(req, res);
 
-      expect(commentService.deleteComment)
-        .toHaveBeenCalledWith(
-          "comment1",
-          "user1"
-        );
+  expect(commentService.deleteComment)
+    .toHaveBeenCalledWith(
+      "comment1",
+      "user1",
+      "user"
+    );
 
-      expect(res.status)
-        .toHaveBeenCalledWith(200);
+  expect(res.status)
+    .toHaveBeenCalledWith(200);
 
-      expect(res.json)
-        .toHaveBeenCalledWith({
-          success: true,
-          message: "Comment deleted successfully",
-        });
+  expect(res.json)
+    .toHaveBeenCalledWith({
+      success: true,
+      message: "Comment deleted successfully",
     });
-
+});
     it("should return 403 if unauthorized", async () => {
       vi.spyOn(commentService, "deleteComment")
         .mockRejectedValue(

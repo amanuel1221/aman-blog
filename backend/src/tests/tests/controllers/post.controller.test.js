@@ -11,6 +11,8 @@ const {
   createPost,
   getAllPosts,
   getPostBySlug,
+  getPostById,
+
 } = require("../../../controllers/postControllers");
 
 describe("Post Controller", () => {
@@ -97,45 +99,46 @@ describe("Post Controller", () => {
 
   describe("getAllPosts", () => {
     it("should return posts successfully", async () => {
-      const result = {
-        posts: [
-          {
-            _id: "1",
-            title: "Post 1",
-          },
-        ],
-        total: 1,
-        page: 1,
-        totalPages: 1,
-      };
+  const result = {
+    posts: [
+      {
+        _id: "1",
+        title: "Post 1",
+      },
+    ],
+    total: 1,
+    page: 1,
+    totalPages: 1,
+  };
 
-      req.query = {
-        page: "1",
-        limit: "10",
-        search: "",
-      };
+  req.query = {
+    page: "1",
+    limit: "10",
+    search: "",
+  };
 
-      vi.spyOn(postService, "getAllPosts")
-        .mockResolvedValue(result);
+  vi.spyOn(postService, "getAllPosts")
+    .mockResolvedValue(result);
 
-      await getAllPosts(req, res);
+  await getAllPosts(req, res);
 
-      expect(postService.getAllPosts)
-        .toHaveBeenCalledWith(
-          "",
-          1,
-          10
-        );
-
-      expect(res.status)
-        .toHaveBeenCalledWith(200);
-
-      expect(res.json)
-        .toHaveBeenCalledWith({
-          success: true,
-          ...result,
-        });
+  expect(postService.getAllPosts)
+    .toHaveBeenCalledWith({
+      search: "",
+      category: "",
+      page: 1,
+      limit: 10,
     });
+
+  expect(res.status)
+    .toHaveBeenCalledWith(200);
+
+  expect(res.json)
+    .toHaveBeenCalledWith({
+      success: true,
+      ...result,
+    });
+});
 
     it("should return empty posts message", async () => {
       req.query = {};
@@ -233,4 +236,60 @@ describe("Post Controller", () => {
         });
     });
   });
+  describe("getPostById", () => {
+  it("should return a post by id", async () => {
+    const post = {
+      _id: "post123",
+      title: "Test Post",
+    };
+
+    req.params = {
+      id: "post123",
+    };
+
+    vi.spyOn(postService, "getPostById")
+      .mockResolvedValue(post);
+
+    await getPostById(req, res);
+
+    expect(postService.getPostById)
+      .toHaveBeenCalledWith("post123");
+
+    expect(res.status)
+      .toHaveBeenCalledWith(200);
+
+    expect(res.json)
+      .toHaveBeenCalledWith({
+        success: true,
+        post,
+      });
+  });
+
+
+  it("should return 404 when post is not found", async () => {
+    req.params = {
+      id: "unknown-id",
+    };
+
+    vi.spyOn(postService, "getPostById")
+      .mockRejectedValue(
+        new Error("Post not found")
+      );
+
+    await getPostById(req, res);
+
+    expect(postService.getPostById)
+      .toHaveBeenCalledWith("unknown-id");
+
+    expect(res.status)
+      .toHaveBeenCalledWith(404);
+
+    expect(res.json)
+      .toHaveBeenCalledWith({
+        success: false,
+        message: "Post not found",
+      });
+  });
 });
+});
+

@@ -151,20 +151,7 @@ describe("updateComment", () => {
 });
 
 describe("deleteComment", () => {
-  it("should delete comment", async () => {
-    req.params = { id: "c1" };
-
-    commentService.deleteComment.mockResolvedValue(true);
-
-    await deleteComment(req, res);
-
-    expect(commentService.deleteComment).toHaveBeenCalledWith(
-      "c1",
-      "user123"
-    );
-
-    expect(res.status).toHaveBeenCalledWith(200);
-  });
+ 
 
   it("should return 403 if not authorized", async () => {
     req.params = { id: "c1" };
