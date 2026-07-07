@@ -1,147 +1,31 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import NotesGrid from '../components/NotesGrid';
-import { Helmet } from 'react-helmet-async';
+import SEO from '../components/SEO';
 
 const AboutPage = () => {
-  const seoData = {
-    title:
-      "About Amanuel Amare | Software Engineer, React Developer & Technical Writer",
-    description:
-      "Learn about Amanuel Amare, a software engineer passionate about React, JavaScript, performance optimization, API architecture, Vitest testing, and building scalable full-stack web applications.",
-
-    keywords:
-      "Amanuel Amare, Software Engineer, React Developer, JavaScript, TypeScript, Vitest, API Design, Performance Optimization, Full Stack Developer, Web Development, React Performance",
-
-    url: "https://amanuel-portfolio-flame.vercel.app/about",
-
-    image:
-      "https://amanuel-portfolio-flame.vercel.app/og-image.png",
-
-    siteName: "Amanuel Amare Engineering Blog",
-
-    author: "Amanuel Amare"
-  };
-  const structuredData = {
-    "@context": "https://schema.org",
-    "@graph": [
-      {
-        "@type": "Person",
-        "@id": "https://amanuel-portfolio-flame.vercel.app/#person",
-        name: "Amanuel Amare",
-        url: "https://amanuel-portfolio-flame.vercel.app",
-        image: seoData.image,
-        jobTitle: "Software Engineer",
-        description:
-          "Software engineer specializing in React, JavaScript, frontend performance optimization, testing, and scalable API architecture.",
-        sameAs: [
-          "https://github.com/amanuel1221",
-          "https://linkedin.com/in/amanuel-amare-684234372"
-        ],
-        knowsAbout: [
-          "React",
-          "JavaScript",
-          "TypeScript",
-          "Vitest",
-          "Node.js",
-          "API Design",
-          "Software Engineering",
-          "Performance Optimization"
-        ]
-      },
-      {
-        "@type": "AboutPage",
-        name: "About Amanuel Amare",
-        url: seoData.url,
-        description: seoData.description
-      },
-      {
-        "@type": "WebSite",
-        url: "https://amanuel-portfolio-flame.vercel.app",
-        name: seoData.siteName,
-        author: {
-          "@type": "Person",
-          name: "Amanuel Amare"
-        }
-      }
-    ]
-  };
+  
+     const absoluteUrl = "https://aman-blog-q9sde5ao0-amanuel-amares-projects.vercel.app/about";
+     const siteLogoUrl = "https://aman-blog-q9sde5ao0-amanuel-amares-projects.vercel.app/og-image.png";
   return (
     <>
-      <Helmet>
-        <html lang="en" />
-
-        <title>{seoData.title}</title>
-
-        <meta name="description" content={seoData.description} />
-
-        <meta name="keywords" content={seoData.keywords} />
-
-        <meta name="author" content={seoData.author} />
-
-        <meta
-          name="robots"
-          content="index, follow, max-image-preview:large"
-        />
-        <meta name="theme-color" content="#0b0c10" />
-        <link rel="canonical" href={seoData.url} />
-
-        <meta property="og:type" content="profile" />
-        <meta property="og:title" content={seoData.title} />
-        <meta property="og:description" content={seoData.description} />
-        <meta property="og:url" content={seoData.url} />
-        <meta property="og:image" content={seoData.image} />
-        <meta property="og:site_name" content={seoData.siteName} />
-        <meta property="og:locale" content="en_US" />
-        <meta
-          property="og:image"
-          content="https://amanuel-portfolio-flame.vercel.app/og-image.png"
-        />
-        <meta
-          name="twitter:creator"
-          content="@AmanuelAma66386"
-        />
-        <meta
-          name="twitter:image"
-          content="https://amanuel-portfolio-flame.vercel.app/og-image.png"
-        />
-
-        <meta
-          property="og:image:width"
-          content="1200"
-        />
-
-        <meta
-          property="og:image:height"
-          content="630"
-        />
-
-        <meta
-          property="og:image:alt"
-          content="Amanuel Amare - Software Engineer"
-        />
-
-        <meta
-          name="twitter:card"
-          content="summary_large_image"
-        />
-        <meta
-          name="twitter:title"
-          content={seoData.title}
-        />
-        <meta
-          name="twitter:description"
-          content={seoData.description}
-        />
-        <meta
-          name="twitter:image"
-          content={seoData.image}
-        />
-
-        <script type="application/ld+json">
-          {JSON.stringify(structuredData)}
-        </script>
-      </Helmet>
+      <SEO 
+        title="About Amanuel Amare | Software Engineer, React Developer & Technical Writer"
+        description="Learn about Amanuel Amare, a software engineer passionate about React, JavaScript, performance optimization, API architecture, Vitest testing, and building scalable full-stack web applications."
+        canonicalUrl={absoluteUrl}
+        ogType="profile"
+        ogImage={siteLogoUrl}
+        breadcrumbs={[
+          { name: "Home", url: "https://aman-blog-q9sde5ao0-amanuel-amares-projects.vercel.app" },
+          { name: "About", url: absoluteUrl }
+        ]}
+        profileData={{
+          firstName: "Amanuel",
+          lastName: "Amare",
+          username: "amanuel1221",
+          gender: "male"
+        }}
+      />
       <main className="min-h-screen bg-white text-gray-900" data-testid="about-page" aria-labelledby="About Amanuel Amrare">
 
 

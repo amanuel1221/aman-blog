@@ -2,36 +2,9 @@ import React, { useState, useMemo, useEffect } from "react";
 import { getPosts } from "../api/postApi";
 import PostCard from "../components/PostCard";
 import SearchModal from "../components/SearchModal";
-import { Helmet } from "react-helmet-async";
-const seoData = {
-  title: "Software Engineering Blog | React, JavaScript, Vitest & Web Development",
-  description: "Explore practical software engineering tutorials covering React, JavaScript, TypeScript, Node.js, Vitest, REST APIs, performance optimization, testing, and scalable full-stack web development.",
-  keywords: "React Blog, JavaScript Tutorials, TypeScript, Vitest, API Design, Performance Optimization, Node.js, Full Stack Development, Software Engineering",
-  url: "https://amanuel-portfolio-flame.vercel.app/blogs",
-  image: "https://amanuel-portfolio-flame.vercel.app/og-image.png",
-  siteName: "Amanuel Amare Engineering Blog"
-};
-const structuredData = {
-  "@context": "https://schema.org",
-  "@graph": [
-    {
-      "@type": "Blog",
-      "name": "Amanuel Amare Engineering Blog",
-      "url": seoData.url,
-      "description": seoData.description,
-      "author": {
-        "@type": "Person",
-        "name": "Amanuel Amare"
-      }
-    },
-    {
-      "@type": "CollectionPage",
-      "name": "Software Engineering Articles",
-      "url": seoData.url,
-      "description": seoData.description
-    }
-  ]
-};
+import SEO from "../components/SEO";
+
+    
 const BlogsPage = () => {
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState("All");
@@ -41,10 +14,10 @@ const BlogsPage = () => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
 
- useEffect(() => {
+  useEffect(() => {
     const fetchPosts = async () => {
       try {
-        
+
         const res = await getPosts(1, 1000);
         setPosts(res.data.posts || []);
       } catch (err) {
@@ -99,39 +72,23 @@ const BlogsPage = () => {
       });
     }
   };
+  const blogAbsoluteUrl = "https://aman-blog-q9sde5ao0-amanuel-amares-projects.vercel.app/blogs";
 
 
   return (
 
     <>
-      <Helmet>
-        <html lang="en" />
-        <title>{seoData.title}</title>
-        <meta name="description" content={seoData.description} />
-        <meta name="keywords" content={seoData.keywords} />
-        <meta name="robots" content="index, follow" />
-        <meta name="author" content="Amanuel Amare" />
-        <link rel="canonical" href={seoData.url} />
-
-        <meta property="og:type" content="website" />
-        <meta property="og:title" content={seoData.title} />
-        <meta property="og:description" content={seoData.description} />
-        <meta property="og:image" content={seoData.image} />
-        <meta property="og:url" content={seoData.url} />
-        <meta property="og:site_name" content={seoData.siteName} />
-        <meta property="og:image:width" content="1200" />
-        <meta property="og:image:height" content="630" />
-        <meta property="og:image:alt" content="Software Engineering Blog Banner" />
-
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={seoData.title} />
-        <meta name="twitter:description" content={seoData.description} />
-        <meta name="twitter:image" content={seoData.image} />
-
-        <script type="application/ld+json">
-          {JSON.stringify(structuredData)}
-        </script>
-      </Helmet>
+      <SEO 
+        title="Software Engineering Blog | React, JavaScript, Vitest & Web Development"
+        description="Explore practical software engineering tutorials covering React, JavaScript, TypeScript, Node.js, Vitest, REST APIs, performance optimization, testing, and scalable full-stack web development."
+        canonicalUrl={blogAbsoluteUrl}
+        ogType="website"
+        ogImage="https://aman-blog-q9sde5ao0-amanuel-amares-projects.vercel.app/og-image.png"
+        breadcrumbs={[
+          { name: "Home", url: "https://aman-blog-q9sde5ao0-amanuel-amares-projects.vercel.app" },
+          { name: "Blog", url: blogAbsoluteUrl }
+        ]}
+      />
       <main className=" bg-white">
 
         <SearchModal
@@ -144,7 +101,7 @@ const BlogsPage = () => {
           <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-gray-400"
             data-testid="blog-page-header" role="img" aria-label="Sprout icon"
           >
-             Blog & Resources
+            Blog & Resources
           </span>
 
           <h1 className="mt-5 text-5xl md:text-6xl font-black tracking-tight text-gray-900 leading-tight" data-testid="blog-page-title">

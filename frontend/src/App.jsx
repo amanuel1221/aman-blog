@@ -52,6 +52,7 @@ const App = () => {
           <Route path="messages" element={<AdminMessages />} />
           <Route path="analytics" element={<AdminAnalytics />} />
         </Route>
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
       <Footer />
     </>
