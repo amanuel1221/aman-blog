@@ -4,6 +4,18 @@ import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 import NavBar from "../../components/NavBar";
 import SearchModal from "../../components/SearchModal";
+vi.mock("../../context/AuthContext", () => ({
+  useAuth: () => ({ user: null, logout: vi.fn() }),
+}));
+vi.mock("../../api/postApi", () => ({
+  getPosts: vi.fn(() =>
+    Promise.resolve({
+      data: {
+        posts: [],
+      },
+    })
+  ),
+}));
 
 test("checking the renders of navbar and links appearing correctly", async () => {
     render(
@@ -36,7 +48,7 @@ test("checking the renders of navbar and links appearing correctly", async () =>
 
 
 });
-test("renders search modal when open is true", () => {
+test("renders search modal when open is true", async () => {
     render(
         <MemoryRouter>
             <SearchModal
@@ -47,8 +59,9 @@ test("renders search modal when open is true", () => {
         </MemoryRouter>
     );
 
-    const searchModal = screen.getByTestId("search-modal");
-    expect(searchModal).toBeInTheDocument();
+    expect(
+        await screen.findByTestId("search-modal")
+    ).toBeInTheDocument();
 });
 
 

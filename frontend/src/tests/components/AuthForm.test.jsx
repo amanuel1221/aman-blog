@@ -1,6 +1,7 @@
 import React from "react";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { MemoryRouter } from "react-router-dom";
 import AuthForm from "../../components/AuthForm";
 
 const mockLogin = vi.fn();
@@ -10,16 +11,35 @@ vi.mock("../../context/AuthContext", () => ({
   useAuth: () => ({
     login: mockLogin,
     signup: mockSignup,
+    error: null,
+    user: null,
+    logout: vi.fn(),
   }),
 }));
+
+vi.mock("react-toastify", () => ({
+  toast: {
+    success: vi.fn(),
+    error: vi.fn(),
+  },
+}));
+
+const renderAuthForm = (props) =>
+  render(
+    <MemoryRouter>
+      <AuthForm {...props} />
+    </MemoryRouter>
+  );
 
 describe("AuthForm Component", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockLogin.mockResolvedValue({ success: true, user: { role: "user" } });
+    mockSignup.mockResolvedValue({ success: true, user: { role: "user" } });
   });
 
   it("renders login mode by default", () => {
-    render(<AuthForm />);
+    renderAuthForm();
 
     expect(screen.getByTestId("auth-form")).toBeInTheDocument();
     expect(screen.getByTestId("auth-form-title")).toHaveTextContent(
@@ -27,13 +47,13 @@ describe("AuthForm Component", () => {
     );
     expect(screen.getByTestId("auth-form-email-input")).toBeInTheDocument();
     expect(screen.getByTestId("auth-form-password-input")).toBeInTheDocument();
-    expect(
-      screen.getByTestId("auth-form-submit-button")
-    ).toHaveTextContent("Sign in to account");
+    expect(screen.getByTestId("auth-form-submit-button")).toHaveTextContent(
+      "Sign In"
+    );
   });
 
   it("renders signup mode when initialMode is signup", () => {
-    render(<AuthForm initialMode="signup" />);
+    renderAuthForm({ initialMode: "signup" });
 
     expect(screen.getByTestId("auth-form-title")).toHaveTextContent(
       "Create your account"
@@ -43,13 +63,13 @@ describe("AuthForm Component", () => {
     expect(screen.getByTestId("auth-form-email-input")).toBeInTheDocument();
     expect(screen.getByTestId("auth-form-password-input")).toBeInTheDocument();
 
-    expect(
-      screen.getByTestId("auth-form-submit-button")
-    ).toHaveTextContent("Get started free");
+    expect(screen.getByTestId("auth-form-submit-button")).toHaveTextContent(
+      "Create Account"
+    );
   });
 
   it("updates email and password inputs in login mode", () => {
-    render(<AuthForm />);
+    renderAuthForm();
 
     const emailInput = screen.getByTestId("auth-form-email-input");
     const passwordInput = screen.getByTestId("auth-form-password-input");
@@ -67,7 +87,7 @@ describe("AuthForm Component", () => {
   });
 
   it("updates all inputs in signup mode", () => {
-    render(<AuthForm initialMode="signup" />);
+    renderAuthForm({ initialMode: "signup" });
 
     const nameInput = screen.getByTestId("auth-form-name-input");
     const emailInput = screen.getByTestId("auth-form-email-input");
@@ -90,28 +110,31 @@ describe("AuthForm Component", () => {
     expect(passwordInput.value).toBe("password123");
   });
 
-  it("calls login when login form is submitted", () => {
-    render(<AuthForm />);
+  it("calls login when login form is submitted", async () => {
+    renderAuthForm();
 
     fireEvent.change(screen.getByTestId("auth-form-email-input"), {
       target: { value: "test@example.com" },
     });
 
     fireEvent.change(screen.getByTestId("auth-form-password-input"), {
-      target: { value: "password123" },
+      target: { value: "Password123!" },
     });
 
     fireEvent.submit(screen.getByTestId("auth-form-form"));
 
-    expect(mockLogin).toHaveBeenCalledTimes(1);
+    await waitFor(() => {
+      expect(mockLogin).toHaveBeenCalledTimes(1);
+    });
+
     expect(mockLogin).toHaveBeenCalledWith(
       "test@example.com",
-      "password123"
+      "Password123!"
     );
   });
 
-  it("calls signup when signup form is submitted", () => {
-    render(<AuthForm initialMode="signup" />);
+  it("calls signup when signup form is submitted", async () => {
+    renderAuthForm({ initialMode: "signup" });
 
     fireEvent.change(screen.getByTestId("auth-form-name-input"), {
       target: { value: "John Doe" },
@@ -122,21 +145,24 @@ describe("AuthForm Component", () => {
     });
 
     fireEvent.change(screen.getByTestId("auth-form-password-input"), {
-      target: { value: "password123" },
+      target: { value: "Password123!" },
     });
 
     fireEvent.submit(screen.getByTestId("auth-form-form"));
 
-    expect(mockSignup).toHaveBeenCalledTimes(1);
+    await waitFor(() => {
+      expect(mockSignup).toHaveBeenCalledTimes(1);
+    });
+
     expect(mockSignup).toHaveBeenCalledWith(
       "John Doe",
       "john@example.com",
-      "password123"
+      "Password123!"
     );
   });
 
   it("switches from login mode to signup mode", () => {
-    render(<AuthForm />);
+    renderAuthForm();
 
     fireEvent.click(screen.getByTestId("auth-form-signup-button"));
 
@@ -146,13 +172,13 @@ describe("AuthForm Component", () => {
 
     expect(screen.getByTestId("auth-form-name-input")).toBeInTheDocument();
 
-    expect(
-      screen.getByTestId("auth-form-submit-button")
-    ).toHaveTextContent("Get started free");
+    expect(screen.getByTestId("auth-form-submit-button")).toHaveTextContent(
+      "Create Account"
+    );
   });
 
   it("switches from signup mode to login mode", () => {
-    render(<AuthForm initialMode="signup" />);
+    renderAuthForm({ initialMode: "signup" });
 
     fireEvent.click(screen.getByTestId("auth-form-login-button"));
 
@@ -164,22 +190,20 @@ describe("AuthForm Component", () => {
       screen.queryByTestId("auth-form-name-input")
     ).not.toBeInTheDocument();
 
-    expect(
-      screen.getByTestId("auth-form-submit-button")
-    ).toHaveTextContent("Sign in to account");
+    expect(screen.getByTestId("auth-form-submit-button")).toHaveTextContent(
+      "Sign In"
+    );
   });
 
   it("renders forgot password link in login mode", () => {
-    render(<AuthForm />);
+    renderAuthForm();
 
     expect(screen.getByText("Forgot password?")).toBeInTheDocument();
   });
 
   it("does not render forgot password link in signup mode", () => {
-    render(<AuthForm initialMode="signup" />);
+    renderAuthForm({ initialMode: "signup" });
 
-    expect(
-      screen.queryByText("Forgot password?")
-    ).not.toBeInTheDocument();
+    expect(screen.queryByText("Forgot password?")).not.toBeInTheDocument();
   });
 });

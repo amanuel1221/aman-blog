@@ -6,12 +6,13 @@ import TopPostsTable from "../../admin/components/TopPostsTable";
 
 const posts = [
   {
-    id: "1",
+    _id: "1", // Changed from id to _id to align with component mapping
+    slug: "test-post-one", // Added to resolve correct link href attributes
     title: "Test Post One",
     excerpt: "Short excerpt for test post one.",
     views: 1000,
-    likes: 80,
-    comments: 5,
+    likes: ["user-1"], // Set up as an array so .length evaluates properly
+    commentsCount: 5, // Matched with component's custom data key name
     createdAt: "2026-07-01T00:00:00.000Z",
   },
 ];
@@ -37,8 +38,11 @@ describe("Admin TopPostsTable", () => {
     const titleNodes = screen.getAllByText(posts[0].title);
     expect(titleNodes.length).toBeGreaterThan(0);
 
-    const postLink = screen.getByRole("link", { name: /view details for post test post one/i });
-    expect(postLink).toHaveAttribute("href", "/blogs/1");
+    // Matched exact aria-label format specified inside the component
+    const postLink = screen.getByRole("link", { 
+      name: /inspect web path deployment details for test post one/i 
+    });
+    expect(postLink).toHaveAttribute("href", "/blogs/test-post-one");
   });
 
   it("calls edit and delete callbacks for admin post actions", async () => {
@@ -52,6 +56,7 @@ describe("Admin TopPostsTable", () => {
       </MemoryRouter>
     );
 
+    // Finds matching test nodes safely now that _id is present
     const editButtons = screen.getAllByTestId("post-edit-1");
     const deleteButtons = screen.getAllByTestId("post-delete-1");
 

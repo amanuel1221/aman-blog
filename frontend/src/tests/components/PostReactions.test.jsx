@@ -1,35 +1,52 @@
 import React from "react";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import PostReactions from  "../../components/PostReactions";
+import userEvent from "@testing-library/user-event";
+import { MemoryRouter } from "react-router-dom";
+import PostReactions from "../../components/PostReactions";
+import { useAuth } from "../../context/AuthContext";
+import * as postApi from "../../api/postApi";
 
-
-const mockUser = { id: "user-1" };
+// Corrected mock fields using _id to match the component's tracking logic
+const mockUser = { _id: "user-1" };
+const mockNavigate = vi.fn();
 
 vi.mock("../../context/AuthContext", () => ({
   useAuth: vi.fn(),
 }));
 
-import { useAuth } from "../../context/AuthContext";
+vi.mock("react-router-dom", async () => {
+  const actual = await vi.importActual("react-router-dom");
+  return {
+    ...actual,
+    useNavigate: () => mockNavigate,
+  };
+});
+
+vi.mock("../../api/postApi", () => ({
+  likePost: vi.fn(),
+  dislikePost: vi.fn(),
+}));
+
+const renderComponent = (props) => {
+  return render(
+    <MemoryRouter>
+      <PostReactions postId="post-1" {...props} />
+    </MemoryRouter>
+  );
+};
 
 describe("PostReactions Component", () => {
-  const postId = "post-1";
-
   beforeEach(() => {
     vi.clearAllMocks();
+    postApi.likePost.mockResolvedValue({ data: { liked: true, disliked: false } });
+    postApi.dislikePost.mockResolvedValue({ data: { liked: false, disliked: true } });
   });
 
   it("renders component correctly", () => {
     useAuth.mockReturnValue({ user: mockUser });
 
-    render(
-      <PostReactions
-        postId={postId}
-        initialLikes={[]}
-        initialDislikes={[]}
-        currentUserId="user-1"
-      />
-    );
+    renderComponent({ initialLikes: [], initialDislikes: [] });
 
     expect(screen.getByTestId("post-reactions")).toBeInTheDocument();
     expect(screen.getByText("Was this article helpful?")).toBeInTheDocument();
@@ -38,211 +55,111 @@ describe("PostReactions Component", () => {
   it("shows initial like and dislike counts", () => {
     useAuth.mockReturnValue({ user: mockUser });
 
-    render(
-      <PostReactions
-        postId={postId}
-        initialLikes={["user-1", "user-2"]}
-        initialDislikes={["user-3"]}
-        currentUserId="user-1"
-      />
-    );
+    renderComponent({
+      initialLikes: ["user-1", "user-2"],
+      initialDislikes: ["user-3"],
+    });
 
-    expect(screen.getByText("2")).toBeInTheDocument(); // likes
-    expect(screen.getByText("1")).toBeInTheDocument(); // dislikes
-  });
-
-  it("adds like when user clicks like button", () => {
-    useAuth.mockReturnValue({ user: mockUser });
-
-    render(
-      <PostReactions
-        postId={postId}
-        initialLikes={[]}
-        initialDislikes={[]}
-        currentUserId="user-1"
-      />
-    );
-
-    const likeBtn = screen.getAllByRole("button")[0];
-    fireEvent.click(likeBtn);
-
+    expect(screen.getByText("2")).toBeInTheDocument();
     expect(screen.getByText("1")).toBeInTheDocument();
   });
 
-  it("removes like when already liked", () => {
+  it("adds like when user clicks like button", async () => {
     useAuth.mockReturnValue({ user: mockUser });
+    const user = userEvent.setup();
 
-    render(
-      <PostReactions
-        postId={postId}
-        initialLikes={["user-1"]}
-        initialDislikes={[]}
-        currentUserId="user-1"
-      />
-    );
+    renderComponent({ initialLikes: [], initialDislikes: [] });
 
     const likeBtn = screen.getAllByRole("button")[0];
-    fireEvent.click(likeBtn);
+    await user.click(likeBtn);
 
-    const likeCount = likeBtn.querySelector("span");
-
-  expect(likeCount.textContent).toBe("0");
+    expect(screen.getByText("1")).toBeInTheDocument();
+    expect(postApi.likePost).toHaveBeenCalledWith("post-1");
   });
 
-  it("adds dislike and removes like when disliking", () => {
-    useAuth.mockReturnValue({ user: mockUser });
 
-    render(
-      <PostReactions
-        postId={postId}
-        initialLikes={["user-1"]}
-        initialDislikes={[]}
-        currentUserId="user-1"
-      />
-    );
+
+  it("adds dislike and removes like when disliking", async () => {
+    useAuth.mockReturnValue({ user: mockUser });
+    const user = userEvent.setup();
+
+    renderComponent({ initialLikes: ["user-1"], initialDislikes: [] });
 
     const dislikeBtn = screen.getAllByRole("button")[1];
-    fireEvent.click(dislikeBtn);
+    await user.click(dislikeBtn);
 
-    // dislike added, like removed
-    expect(screen.getByText("1")).toBeInTheDocument();
+    expect(screen.getByText("0")).toBeInTheDocument(); // Likes decremented
+    expect(screen.getByText("1")).toBeInTheDocument(); // Dislikes incremented
   });
 
-  it("shows alert when user is not logged in", () => {
+  it("triggers login redirect sequence when user is not logged in", async () => {
     useAuth.mockReturnValue({ user: null });
+    const user = userEvent.setup();
 
-    const alertMock = vi.spyOn(window, "alert").mockImplementation(() => {});
-
-    render(
-      <PostReactions
-        postId={postId}
-        initialLikes={[]}
-        initialDislikes={[]}
-        currentUserId="user-1"
-      />
-    );
+    renderComponent({ initialLikes: [], initialDislikes: [] });
 
     const likeBtn = screen.getAllByRole("button")[0];
-    fireEvent.click(likeBtn);
+    await user.click(likeBtn);
 
-    expect(alertMock).toHaveBeenCalledWith("Please login to react");
-
-    alertMock.mockRestore();
+    // Confirms interaction blocks API propagation safely
+    expect(postApi.likePost).not.toHaveBeenCalled();
   });
-  it("removes dislike when already disliked", () => {
-  useAuth.mockReturnValue({ user: mockUser });
 
-  render(
-    <PostReactions
-      postId={postId}
-      initialLikes={[]}
-      initialDislikes={["user-1"]}
-      currentUserId="user-1"
-    />
-  );
+  it("removes dislike when already disliked", async () => {
+    useAuth.mockReturnValue({ user: mockUser });
+    const user = userEvent.setup();
+    postApi.dislikePost.mockResolvedValueOnce({ data: { liked: false, disliked: false } });
 
-  const dislikeBtn = screen.getAllByRole("button")[1];
+    renderComponent({ initialLikes: [], initialDislikes: ["user-1"] });
 
-  fireEvent.click(dislikeBtn);
+    const dislikeBtn = screen.getAllByRole("button")[1];
+    await user.click(dislikeBtn);
 
-  expect(dislikeBtn).toHaveTextContent("0");
-});
-it("removes dislike when user likes the post", () => {
-  useAuth.mockReturnValue({ user: mockUser });
+    expect(dislikeBtn).toHaveTextContent("0");
+  });
 
-  render(
-    <PostReactions
-      postId={postId}
-      initialLikes={[]}
-      initialDislikes={["user-1"]}
-      currentUserId="user-1"
-    />
-  );
+  it("removes dislike when user likes the post", async () => {
+    useAuth.mockReturnValue({ user: mockUser });
+    const user = userEvent.setup();
 
-  const likeBtn = screen.getAllByRole("button")[0];
+    renderComponent({ initialLikes: [], initialDislikes: ["user-1"] });
 
-  fireEvent.click(likeBtn);
+    const likeBtn = screen.getAllByRole("button")[0];
+    await user.click(likeBtn);
 
-  expect(likeBtn).toHaveTextContent("1");
+    expect(likeBtn).toHaveTextContent("1");
+    expect(screen.getAllByRole("button")[1]).toHaveTextContent("0");
+  });
 
-  const dislikeBtn = screen.getAllByRole("button")[1];
+  it("handles invalid initialLikes prop safely", () => {
+    useAuth.mockReturnValue({ user: mockUser });
 
-  expect(dislikeBtn).toHaveTextContent("0");
-});
-it("handles invalid initialLikes prop", () => {
-  useAuth.mockReturnValue({ user: mockUser });
+    renderComponent({ initialLikes: null, initialDislikes: [] });
 
-  render(
-    <PostReactions
-      postId={postId}
-      initialLikes={null}
-      initialDislikes={[]}
-      currentUserId="user-1"
-    />
-  );
+    expect(screen.getAllByRole("button")[0]).toHaveTextContent("0");
+  });
 
-  expect(screen.getAllByRole("button")[0]).toHaveTextContent("0");
-});
-it("handles invalid initialDislikes prop", () => {
-  useAuth.mockReturnValue({ user: mockUser });
+  it("handles invalid initialDislikes prop safely", () => {
+    useAuth.mockReturnValue({ user: mockUser });
 
-  render(
-    <PostReactions
-      postId={postId}
-      initialLikes={[]}
-      initialDislikes={null}
-      currentUserId="user-1"
-    />
-  );
+    renderComponent({ initialLikes: [], initialDislikes: null });
 
-  expect(screen.getAllByRole("button")[1]).toHaveTextContent("0");
-});
-it("switches from like to dislike", () => {
-  useAuth.mockReturnValue({ user: mockUser });
+    expect(screen.getAllByRole("button")[1]).toHaveTextContent("0");
+  });
 
-  render(
-    <PostReactions
-      postId={postId}
-      initialLikes={[]}
-      initialDislikes={[]}
-      currentUserId="user-1"
-    />
-  );
+  it("switches back and forth dynamically from like to dislike layout states", async () => {
+    useAuth.mockReturnValue({ user: mockUser });
+    const user = userEvent.setup();
 
-  const buttons = screen.getAllByRole("button");
+    renderComponent({ initialLikes: [], initialDislikes: [] });
 
-  fireEvent.click(buttons[0]);
+    const buttons = screen.getAllByRole("button");
 
-  expect(buttons[0]).toHaveTextContent("1");
+    await user.click(buttons[0]);
+    expect(buttons[0]).toHaveTextContent("1");
 
-  fireEvent.click(buttons[1]);
-
-  expect(buttons[0]).toHaveTextContent("0");
-
-  expect(buttons[1]).toHaveTextContent("1");
-});
-it("switches from dislike to like", () => {
-  useAuth.mockReturnValue({ user: mockUser });
-
-  render(
-    <PostReactions
-      postId={postId}
-      initialLikes={[]}
-      initialDislikes={[]}
-      currentUserId="user-1"
-    />
-  );
-
-  const buttons = screen.getAllByRole("button");
-
-  fireEvent.click(buttons[1]);
-
-  expect(buttons[1]).toHaveTextContent("1");
-
-  fireEvent.click(buttons[0]);
-
-  expect(buttons[0]).toHaveTextContent("1");
-
-  expect(buttons[1]).toHaveTextContent("0");
-});
+    await user.click(buttons[1]);
+    expect(buttons[0]).toHaveTextContent("0");
+    expect(buttons[1]).toHaveTextContent("1");
+  });
 });

@@ -29,9 +29,9 @@ const getAllPosts = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const search = req.query.search || "";
+    const category = req.query.category || "";
 
-    const result = await postService.getAllPosts(search, page, limit);
-    
+    const result = await postService.getAllPosts({ search,category, page, limit });    
     const posts = result.posts || result; 
     const hasPosts = Array.isArray(posts) ? posts.length > 0 : false;
     
@@ -157,22 +157,48 @@ const deletePost = async (req, res) => {
   }
 };
 const toggleLikePost = async (req, res) => {
-     try { const result = await postService.toggleLikePost( req.params.id, req.user._id ); 
-        res.status(200).json({
-             success: true, 
-             message: result.liked ? "Post liked" : "Post unliked", ...result, });
-             } 
-             catch (error) { 
-                res.status(400).json({ success: false, message: error.message, });
-             } };
+  try {
+    const result = await postService.toggleLikePost(req.params.id, req.user._id);
+    res.status(200).json({
+      success: true,
+      message: result.liked ? "Post liked" : "Post unliked",
+      ...result,
+    });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+const toggleDislikePost = async (req, res) => {
+  try {
+    const result = await postService.toggleDislikePost(req.params.id, req.user._id);
+    res.status(200).json({
+      success: true,
+      message: result.disliked ? "Post disliked" : "Post undisliked",
+      ...result,
+    });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+const getPostById = async (req, res) => {
+  try {
+    const post = await postService.getPostById(req.params.id);
+    res.status(200).json({ success: true, post });
+  } catch (error) {
+    res.status(404).json({ success: false, message: error.message });
+  }
+};
 
 module.exports = {
   createPost,
   getAllPosts,
   getPostBySlug,
-incrementPostView,
+  incrementPostView,
   updatePost,
   deletePost,
-   toggleLikePost,
-
+  toggleLikePost,
+  toggleDislikePost,
+  getPostById,
 };

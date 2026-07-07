@@ -9,13 +9,13 @@ vi.mock("../../../services/cloudinaryService", () => ({
 
 const postService = require("../../../services/postServices");
 
-postService.createPost       = vi.fn();
-postService.getAllPosts       = vi.fn();
-postService.getPostBySlug    = vi.fn();
-postService.incrementPostView= vi.fn();
-postService.updatePost       = vi.fn();
-postService.deletePost       = vi.fn();
-postService.toggleLikePost   = vi.fn();
+postService.createPost = vi.fn();
+postService.getAllPosts = vi.fn();
+postService.getPostBySlug = vi.fn();
+postService.incrementPostView = vi.fn();
+postService.updatePost = vi.fn();
+postService.deletePost = vi.fn();
+postService.toggleLikePost = vi.fn();
 
 const {
   createPost,
@@ -45,8 +45,8 @@ describe("createPost", () => {
 
     await createPost(req, res);
 
-    expect(postService.createPost).toHaveBeenCalledWith({ title: "Hello" }, "user123",undefined);
-    
+    expect(postService.createPost).toHaveBeenCalledWith({ title: "Hello" }, "user123", undefined);
+
     expect(res.status).toHaveBeenCalledWith(201);
     expect(res.json).toHaveBeenCalledWith({
       success: true,
@@ -74,7 +74,13 @@ describe("getAllPosts", () => {
 
     await getAllPosts(req, res);
 
-    expect(postService.getAllPosts).toHaveBeenCalledWith("hello", 1, 10);
+    expect(postService.getAllPosts)
+      .toHaveBeenCalledWith({
+        search: "hello",
+        category: "",
+        page: 1,
+        limit: 10,
+      });
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith({ success: true, ...result });
   });
@@ -87,7 +93,13 @@ describe("getAllPosts", () => {
 
     await getAllPosts(req, res);
 
-    expect(postService.getAllPosts).toHaveBeenCalledWith("", 1, 10);
+    expect(postService.getAllPosts)
+      .toHaveBeenCalledWith({
+        search: "",
+        category: "",
+        page: 1,
+        limit: 10,
+      });
   });
 
   it("returns 200 empty-posts message when no posts found", async () => {
@@ -176,7 +188,7 @@ describe("updatePost", () => {
 
     await updatePost(req, res);
 
-    expect(postService.updatePost).toHaveBeenCalledWith("post123", "user123", { title: "Updated" },undefined);
+    expect(postService.updatePost).toHaveBeenCalledWith("post123", "user123", { title: "Updated" }, undefined);
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith({
       success: true,
@@ -308,4 +320,6 @@ describe("toggleLikePost", () => {
     expect(res.status).toHaveBeenCalledWith(400);
     expect(res.json).toHaveBeenCalledWith({ success: false, message: "Post not found" });
   });
+
+  
 });
