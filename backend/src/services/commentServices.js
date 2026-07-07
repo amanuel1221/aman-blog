@@ -73,6 +73,20 @@ const updateComment = async (commentId, userId, content) => {
   return comment;
 };
 
+const collectDescendantIds = async (commentId) => {
+  const children = await Comment.find({ parentComment: commentId }, "_id");
+  let ids = children.map((c) => c._id);
+
+  for (const child of children) {
+    const nested = await collectDescendantIds(child._id);
+    ids = ids.concat(nested);
+  }
+
+  return ids;
+};
+
+
+
 const deleteComment = async (commentId, userId, userRole) => {
   validateObjectId(commentId);
   validateObjectId(userId);
@@ -89,14 +103,18 @@ const deleteComment = async (commentId, userId, userRole) => {
     throw new Error("Not authorized to delete this comment");
   }
 
-  await Comment.findByIdAndDelete(commentId);
+  const descendantIds = await collectDescendantIds(commentId);
+  const allIds = [comment._id, ...descendantIds];
+
+  await Comment.deleteMany({ _id: { $in: allIds } });
 
   await Post.findByIdAndUpdate(comment.post, {
-    $inc: { commentsCount: -1 }
+    $inc: { commentsCount: -allIds.length }
   });
 
   return true;
 };
+
 const toggleLikeComment = async (commentId, userId) => {
   validateObjectId(commentId);
 validateObjectId(userId);
@@ -131,6 +149,8 @@ validateObjectId(userId);
 };
 
 const toggleDislikeComment = async (commentId, userId) => {
+  validateObjectId(commentId);
+  validateObjectId(userId);
   const comment = await Comment.findById(commentId);
   if (!comment) {
     throw new Error("Comment not found");

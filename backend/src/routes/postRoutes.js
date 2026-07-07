@@ -18,6 +18,12 @@ router.post(
 );
 
 router.post(
+    "/:id/dislike",
+    protect,
+    postController.toggleDislikePost
+);
+
+router.post(
     "/",
     protect,
     adminOnly,
@@ -39,5 +45,7 @@ router.delete(
     adminOnly,
     postController.deletePost
 );
+router.get("/admin/:id", protect, adminOnly, postController.getPostById);
+
 
 module.exports = router;

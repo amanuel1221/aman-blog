@@ -6,22 +6,14 @@ const { validateCreatePostInput, validateObjectId, validateUpdatePostInput } = r
 const buildCoverImageData = async (file) => {
     if (!file) return undefined;
 
-    try {
-        const uploadResult = await uploadImage(file, "aman-blog/posts");
+    const uploadResult = await uploadImage(file, "aman-blog/posts");
 
-        if (!uploadResult?.url || !uploadResult?.public_id) {
-            return undefined;
-        }
-
-        return uploadResult;
-    } catch (err) {
-        console.error("Cloudinary upload failed:", err.message);
-        return undefined; // NEVER crash post creation
+    if (!uploadResult?.url || !uploadResult?.public_id) {
+        throw new Error("Image upload failed. Please try again.");
     }
+
+    return uploadResult;
 };
-
-
-
 
 
 
@@ -255,26 +247,59 @@ const deletePost = async (postId, userId) => {
 
     return true;
 };
-const toggleLikePost = async (postId, userId) => {
+const toggleReaction = async (postId, userId, action) => {
     validateObjectId(postId);
     validateObjectId(userId);
+
     const post = await Post.findById(postId);
     if (!post) {
         throw new Error("Post not found");
+    }
 
+    const uid = userId.toString();
+    const hasLiked = post.likes.some((id) => id.toString() === uid);
+    const hasDisliked = post.dislikes.some((id) => id.toString() === uid);
+
+    if (action === "like") {
+        if (hasLiked) {
+            post.likes = post.likes.filter((id) => id.toString() !== uid);
+        } else {
+            post.likes.push(userId);
+            if (hasDisliked) {
+                post.dislikes = post.dislikes.filter((id) => id.toString() !== uid);
+            }
+        }
+    } else if (action === "dislike") {
+        if (hasDisliked) {
+            post.dislikes = post.dislikes.filter((id) => id.toString() !== uid);
+        } else {
+            post.dislikes.push(userId);
+            if (hasLiked) {
+                post.likes = post.likes.filter((id) => id.toString() !== uid);
+            }
+        }
     }
-    const alreadyLiked = post.likes.some((id) => id.toString() === userId.toString());
-    if (alreadyLiked) {
-        post.likes = post.likes.filter((id) => id.toString() !== userId.toString());
-    }
-    else {
-        post.likes.push(userId);
-    }
+
     await post.save();
+
     return {
         likesCount: post.likes.length,
-        liked: !alreadyLiked,
+        dislikesCount: post.dislikes.length,
+        liked: post.likes.some((id) => id.toString() === uid),
+        disliked: post.dislikes.some((id) => id.toString() === uid),
     };
+};
+
+const toggleLikePost = (postId, userId) => toggleReaction(postId, userId, "like");
+const toggleDislikePost = (postId, userId) => toggleReaction(postId, userId, "dislike");
+
+const getPostById = async (postId) => {
+    validateObjectId(postId);
+    const post = await Post.findById(postId).populate("author", "name email");
+    if (!post) {
+        throw new Error("Post not found");
+    }
+    return post;
 };
 module.exports = {
     createPost,
@@ -283,4 +308,6 @@ module.exports = {
     updatePost,
     deletePost,
     toggleLikePost,
+    toggleDislikePost,
+    getPostById,
 };
