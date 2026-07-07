@@ -11,21 +11,21 @@ const AdminAnalytics = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-  const fetchDashboard = async () => {
-    try {
-      const res = await getDashboardData();
+    const fetchDashboard = async () => {
+      try {
+        const res = await getDashboardData();
 
-      setDashboardData(res.data); // ✅ correct
-    } catch (err) {
-      console.error("Failed to load dashboard analytics:", err);
-      setError(err?.response?.data?.message || "Failed to load analytics");
-    } finally {
-      setLoading(false);
-    }
-  };
+        setDashboardData(res.data); // ✅ correct
+      } catch (err) {
+        console.error("Failed to load dashboard analytics:", err);
+        setError(err?.response?.data?.message || "Failed to load analytics");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  fetchDashboard();
-}, []);
+    fetchDashboard();
+  }, []);
 
   if (loading) {
     return (
