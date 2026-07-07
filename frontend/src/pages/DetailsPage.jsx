@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo, lazy, Suspense } from 'react';
 import { useParams, NavLink } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
+import SEO from '../components/SEO';
 import { FaUserCircle } from "react-icons/fa";
 import { getPostBySlug, getPosts, viewPost } from "../api/postApi";
 import { useAuth } from "../context/AuthContext";
@@ -146,45 +146,37 @@ const DetailsPage = () => {
       </div>
     );
   }
+  const targetImageUrl = post.coverImage?.url || "https://aman-blog-q9sde5ao0-amanuel-amares-projects.vercel.app/og-image.png";
+  const postAbsoluteUrl = `https://aman-blog-q9sde5ao0-amanuel-amares-projects.vercel.app/blogs/${slug}`;
 
-  const structuredArticleData = {
-    "@context": "https://schema.org",
-    "@type": "BlogPosting",
-    headline: post.title,
-    description: post.excerpt,
-    image: post.coverImage,
-    datePublished: post.dateIso || "2026-06-19",
-    author: {
-      "@type": "Person",
-      name: post.author?.name || post.author || "Amanuel Amare",
-    },
-  };
+  
 
   return (
     <>
-      <Helmet>
-        <title>{`${post.title} | Amanuel Amare`}</title>
-        <meta name="description" content={post.excerpt} />
-        <meta name="keywords" content={`${post.category || 'Software'}, Web Development, Full Stack Engineering`} />
-        <link rel="canonical" href={`https://amanuel-portfolio-flame.vercel.app/blogs/${slug}`} />
-
-        <meta property="og:type" content="article" />
-        <meta property="og:title" content={post.title} />
-        <meta property="og:description" content={post.excerpt} />
-        <meta property="og:url" content={`https://amanuel-portfolio-flame.vercel.app/blogs/${slug}`} />
-        {post.coverImage.url && <meta property="og:image" content={post.coverImage} />}
-        <meta property="article:published_time" content={post.dateIso || "2026-06-19"} />
-        <meta property="article:author" content="Amanuel Amare" />
-
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={post.title} />
-        <meta name="twitter:description" content={post.excerpt} />
-        {post.coverImage.url && <meta name="twitter:image" content={post.coverImage} />}
-
-        <script type="application/ld+json">
-          {JSON.stringify(structuredArticleData)}
-        </script>
-      </Helmet>
+      <SEO 
+        title={post.title}
+        description={post.excerpt || "Read this full technical article on Aman Blog."}
+        canonicalUrl={postAbsoluteUrl}
+        ogType="article"
+        ogImage={targetImageUrl}
+        articleData={{
+          title: post.title,
+          excerpt: post.excerpt,
+          coverImage: { url: targetImageUrl },
+          createdAt: post.dateIso || "2026-06-19",
+          updatedAt: post.updatedAt || post.dateIso || "2026-06-19",
+          category: post.category,
+          tags: post.tags,
+          author: {
+            name: post.author?.name || post.author || "Amanuel Amare"
+          }
+        }}
+        breadcrumbs={[
+          { name: "Home", url: "https://aman-blog-q9sde5ao0-amanuel-amares-projects.vercel.app" },
+          { name: "Blog", url: "https://aman-blog-q9sde5ao0-amanuel-amares-projects.vercel.app/blogs" },
+          { name: post.title, url: postAbsoluteUrl }
+        ]}
+      />
 
       <main
         className={`w-full transition-colors duration-500 ${readingMode ? "bg-stone-50" : "bg-white"}`}

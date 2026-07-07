@@ -1,7 +1,6 @@
-import React, { useMemo, lazy, Suspense,useState,useEffect } from "react";
+import React, { useMemo, lazy, Suspense, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Helmet } from "react-helmet-async";
-
+import SEO from "../components/SEO"; 
 import HomeHero from "../components/HomeHero";
 import PostCard from "../components/PostCard";
 import { getPosts } from "../api/postApi";
@@ -51,27 +50,15 @@ const HomePage = () => {
 
   return (
     <>
-      <Helmet>
-        <title>Amanuel Amare | Full-Stack & AI Engineering Blog</title>
-        <meta name="description" content="Explore insightful deep dives into modern web engineering, MERN stack patterns, scalable architecture, automated UI testing, and emergent AI development applications." />
-        <meta name="keywords" content="Software Engineering, React, Node.js, Vitest, MERN Stack, AI Engineering, Full-Stack Developer Portfolio" />
-        <link rel="canonical" href="https://amanuel-portfolio-flame.vercel.app/" />
+      <SEO 
+        title="Amanuel Amare | Full-Stack & AI Engineering Blog"
+        description="Explore insightful deep dives into modern web engineering, MERN stack patterns, scalable architecture, automated UI testing, and emergent AI development applications."
+        canonicalUrl="https://aman-blog-q9sde5ao0-amanuel-amares-projects.vercel.app"
+        ogType="website"
+      />
 
-        <meta property="og:type" content="website" />
-        <meta property="og:title" content="Amanuel Amare | Full-Stack & AI Engineering Blog" />
-        <meta property="og:description" content="Explore insightful deep dives into modern web engineering, MERN stack patterns, scalable architecture, and emergent AI development applications." />
-        <meta property="og:url" content="https://amanuel-portfolio-flame.vercel.app/" />
-        <meta property="og:image" content="https://amanuel-portfolio-flame.vercel.app/og-image.png" />
-
-       
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Amanuel Amare | Full-Stack & AI Engineering Blog" />
-        <meta name="twitter:description" content="Explore insightful deep dives into modern web engineering, MERN stack patterns, scalable architecture, and emergent AI development applications." />
-        <meta name="twitter:image" content="https://amanuel-portfolio-flame.vercel.app/og-image.png" />
-      </Helmet>
-
-      <main 
-        className="w-full min-h-screen py-16 md:py-24 flex flex-col gap-16 md:gap-24 bg-theme-light" 
+      <main
+        className="w-full min-h-screen py-16 md:py-24 flex flex-col gap-16 md:gap-24 bg-theme-light"
         data-testid="home-page"
       >
         <HomeHero />
@@ -80,15 +67,17 @@ const HomePage = () => {
           <WhatIWriteAbout />
         </Suspense>
 
-    <DevelopmentJourney />
-     
+        <Suspense fallback={<StructureLoader />}>
+  <DevelopmentJourney />
+</Suspense>
+
 
         <Suspense fallback={<StructureLoader />}>
           <WhyReadMyBlog />
         </Suspense>
 
-        <section 
-          className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" 
+        <section
+          className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
           data-testid="home-page-latest-articles"
           aria-labelledby="recent-posts-heading"
         >
