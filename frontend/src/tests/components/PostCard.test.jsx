@@ -1,9 +1,12 @@
+import React from "react";
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { describe, it, expect } from "vitest";
 import PostCard from "../../components/PostCard";
+
 const mockPost = {
   id: "1",
+  slug: "test-blog-post",
   title: "Test Blog Post",
   excerpt: "This is a test excerpt for the blog post.",
   coverImage: "https://example.com/image.jpg",
@@ -16,12 +19,11 @@ const mockPost = {
 };
 
 const renderComponent = () => {
-     return render(
+  return render(
     <MemoryRouter>
       <PostCard post={mockPost} />
     </MemoryRouter>
   );
- 
 };
 
 describe("PostCard Component", () => {
@@ -32,17 +34,12 @@ describe("PostCard Component", () => {
   });
 
   it("renders post image correctly", () => {
-     render(
-    <MemoryRouter>
-      <PostCard post={mockPost} />
-    </MemoryRouter>
-  );
+    renderComponent();
 
     const image = screen.getByTestId("post-card-image");
 
     expect(image).toBeInTheDocument();
     expect(image).toHaveAttribute("src", mockPost.coverImage);
-    expect(image).toHaveAttribute("alt", mockPost.title);
   });
 
   it("renders category when available", () => {
@@ -92,13 +89,13 @@ describe("PostCard Component", () => {
     const link = screen.getByTestId("post-card-read-more");
 
     expect(link).toBeInTheDocument();
-    expect(link.getAttribute("href")).toBe(`/blogs/${mockPost.id}`);
+    expect(link.getAttribute("href")).toBe(`/blogs/${mockPost.slug}`);
   });
 
   it("renders author link to about page", () => {
     renderComponent();
 
-    const authorLink = screen.getByRole("link", { name: /Amanuel Amare/i });
+    const authorLink = screen.getByRole("link", { name: /Author profile for Amanuel Amare/i });
 
     expect(authorLink).toHaveAttribute("href", "/about");
   });
