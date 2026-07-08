@@ -146,8 +146,8 @@ const DetailsPage = () => {
       </div>
     );
   }
-  const targetImageUrl = post.coverImage?.url || "https://aman-blog-q9sde5ao0-amanuel-amares-projects.vercel.app/og-image.png";
-  const postAbsoluteUrl = `https://aman-blog-q9sde5ao0-amanuel-amares-projects.vercel.app/blogs/${slug}`;
+  const targetImageUrl = post.coverImage?.url || "https://aman-blog-seven.vercel.app/og-image.png";
+  const postAbsoluteUrl = `https://aman-blog-seven.vercel.app/blogs/${slug}`;
 
   
 
@@ -172,8 +172,8 @@ const DetailsPage = () => {
           }
         }}
         breadcrumbs={[
-          { name: "Home", url: "https://aman-blog-q9sde5ao0-amanuel-amares-projects.vercel.app" },
-          { name: "Blog", url: "https://aman-blog-q9sde5ao0-amanuel-amares-projects.vercel.app/blogs" },
+          { name: "Home", url: "https://aman-blog-seven.vercel.app" },
+          { name: "Blog", url: "https://aman-blog-seven.vercel.app/blogs" },
           { name: post.title, url: postAbsoluteUrl }
         ]}
       />

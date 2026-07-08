@@ -1,6 +1,6 @@
 import React, { useMemo, lazy, Suspense, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import SEO from "../components/SEO"; 
+import SEO from "../components/SEO";
 import HomeHero from "../components/HomeHero";
 import PostCard from "../components/PostCard";
 import { getPosts } from "../api/postApi";
@@ -50,10 +50,10 @@ const HomePage = () => {
 
   return (
     <>
-      <SEO 
+      <SEO
         title="Amanuel Amare | Full-Stack & AI Engineering Blog"
         description="Explore insightful deep dives into modern web engineering, MERN stack patterns, scalable architecture, automated UI testing, and emergent AI development applications."
-        canonicalUrl="https://aman-blog-q9sde5ao0-amanuel-amares-projects.vercel.app"
+        canonicalUrl="https://aman-blog-seven.vercel.app"
         ogType="website"
       />
 
@@ -68,8 +68,8 @@ const HomePage = () => {
         </Suspense>
 
         <Suspense fallback={<StructureLoader />}>
-  <DevelopmentJourney />
-</Suspense>
+          <DevelopmentJourney />
+        </Suspense>
 
 
         <Suspense fallback={<StructureLoader />}>

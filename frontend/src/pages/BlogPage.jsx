@@ -72,7 +72,7 @@ const BlogsPage = () => {
       });
     }
   };
-  const blogAbsoluteUrl = "https://aman-blog-q9sde5ao0-amanuel-amares-projects.vercel.app/blogs";
+  const blogAbsoluteUrl = "https://aman-blog-seven.vercel.app/blogs";
 
 
   return (
@@ -83,9 +83,9 @@ const BlogsPage = () => {
         description="Explore practical software engineering tutorials covering React, JavaScript, TypeScript, Node.js, Vitest, REST APIs, performance optimization, testing, and scalable full-stack web development."
         canonicalUrl={blogAbsoluteUrl}
         ogType="website"
-        ogImage="https://aman-blog-q9sde5ao0-amanuel-amares-projects.vercel.app/og-image.png"
+        ogImage="https://aman-blog-seven.vercel.app/og-image.png"
         breadcrumbs={[
-          { name: "Home", url: "https://aman-blog-q9sde5ao0-amanuel-amares-projects.vercel.app" },
+          { name: "Home", url: "https://aman-blog-seven.vercel.app" },
           { name: "Blog", url: blogAbsoluteUrl }
         ]}
       />
