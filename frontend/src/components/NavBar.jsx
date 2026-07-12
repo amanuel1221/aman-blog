@@ -63,12 +63,12 @@ useEffect(() => {
       ? "nav-link active text-blue-600 font-semibold"
       : "nav-link text-gray-700 hover:text-blue-600 transition-colors";
 
-      const { user, logout } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
     await logout();
-    navigate("/signin"); // redirect after logout
+    navigate("/signin");
   };
 
   return (
@@ -140,6 +140,17 @@ datatype="navbar-mobile-search-toggle">
               data-testid="desktop-about">
                 About
               </NavLink>
+              {user?.role === "admin" && (
+  <li>
+    <NavLink
+      to="/admin/dashboard"
+      className={navLinkClass}
+      data-testid="desktop-dashboard"
+    >
+      Dashboard
+    </NavLink>
+  </li>
+)}
             </li>
           </ul>
 
