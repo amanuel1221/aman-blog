@@ -1,15 +1,17 @@
+require('dotenv').config();
+
 const bcrypt = require("bcryptjs");
 const User = require("../models/User.js");
-const mongoose=require("mongoose");
+const mongoose = require("mongoose");
 const generateToken = require("../utils/generateToken.js");
-const {validateRegisterInput,validateLoginInput}=require("../validators/auth.validator.js");
-
+const { validateRegisterInput, validateLoginInput } = require("../validators/auth.validator.js");
+const { sendWelcomeEmail } = require("./emailService.js");
 
 const registerUser = async (userData) => {
 
 
-    const { name, email, password} = userData;
-  validateRegisterInput({ name, email, password });
+    const { name, email, password } = userData;
+    validateRegisterInput({ name, email, password });
 
     const existingUser = await User.findOne({ email });
 
@@ -26,8 +28,9 @@ const registerUser = async (userData) => {
         name,
         email,
         password: hashedPassword,
-        
     });
+    await sendWelcomeEmail(user.name, user.email);
+
 
 
     const token = generateToken(user._id);
@@ -38,7 +41,7 @@ const registerUser = async (userData) => {
             _id: user._id,
             name: user.name,
             email: user.email,
-           
+
             role: user.role,
         },
         token,
@@ -61,7 +64,7 @@ const loginUser = async (email, password) => {
         throw new Error("Invalid credentials");
     }
 
-   
+
     const token = generateToken(user._id);
 
     return {
@@ -69,7 +72,7 @@ const loginUser = async (email, password) => {
             _id: user._id,
             name: user.name,
             email: user.email,
-            
+
             role: user.role,
         },
         token,
@@ -78,17 +81,17 @@ const loginUser = async (email, password) => {
 
 
 const getProfile = async (userId) => {
-  if (!mongoose.Types.ObjectId.isValid(userId)) {
-    throw new Error("User not found");
-  }
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+        throw new Error("User not found");
+    }
 
-  const user = await User.findById(userId);
+    const user = await User.findById(userId);
 
-  if (!user) {
-    throw new Error("User not found");
-  }
+    if (!user) {
+        throw new Error("User not found");
+    }
 
-  return user;
+    return user;
 };
 
 module.exports = {

@@ -35,7 +35,7 @@ export const AuthProvider = ({ children }) => {
 
 const login = async (email, password) => {
   try {
-    const res = await loginUser({ email, password }); // ✅ FIXED
+    const res = await loginUser({ email, password }); 
 
     setUser(res.data.user);
     localStorage.setItem("auth_user", JSON.stringify(res.data.user));
