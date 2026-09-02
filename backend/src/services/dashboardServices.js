@@ -1,8 +1,10 @@
+require('dotenv').config();
 const Post = require("../models/Post");
 const User = require("../models/User"); 
 const Comment = require(("../models/comment"));
 const ContactMessage= require("../models/contact");
 const mongoose = require("mongoose");
+
 
 const getDashboardStats = async () => {
   const [totalPosts, totalUsers, totalMessages, unreadMessages] =
