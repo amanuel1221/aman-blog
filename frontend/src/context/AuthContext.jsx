@@ -20,65 +20,78 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const checkAuth = async () => {
+    const savedUser = localStorage.getItem("auth_user");
+
+    // No saved session → don't call /auth/me
+    if (!savedUser) {
+      setUser(null);
+      setLoading(false);
+      return;
+    }
+
     try {
       const { data } = await getCurrentUser();
 
       if (data.success) {
         setUser(data.user);
+      } else {
+        setUser(null);
+        localStorage.removeItem("auth_user");
       }
     } catch (err) {
       setUser(null);
+      localStorage.removeItem("auth_user");
     } finally {
       setLoading(false);
     }
   };
 
-const login = async (email, password) => {
-  try {
-    const res = await loginUser({ email, password }); 
+  const login = async (email, password) => {
+    try {
+      const res = await loginUser({ email, password });
 
-    setUser(res.data.user);
-    localStorage.setItem("auth_user", JSON.stringify(res.data.user));
+      setUser(res.data.user);
+      localStorage.setItem("auth_user", JSON.stringify(res.data.user));
 
-    return {
-      success: true,
-      user: res.data.user,
-    };
-  } catch (err) {
-    return {
-      success: false,
-      message: err.response?.data?.message || "invalid Credintials",
-    };
-  }
-};
-const signup = async (name, email, password) => {
-  try {
-    const res = await registerUser({ name, email, password }); // ✅ FIXED
+      return {
+        success: true,
+        user: res.data.user,
+      };
+    } catch (err) {
+      return {
+        success: false,
+        message: err.response?.data?.message || "invalid Credintials",
+      };
+    }
+  };
+  const signup = async (name, email, password) => {
+    try {
+      const res = await registerUser({ name, email, password }); // ✅ FIXED
 
-    setUser(res.data.user);
-    localStorage.setItem("auth_user", JSON.stringify(res.data.user));
+      setUser(res.data.user);
+      localStorage.setItem("auth_user", JSON.stringify(res.data.user));
 
-    return {
-      success: true,
-      user: res.data.user,
-    };
-  } catch (err) {
-    return {
-      success: false,
-      message: err.response?.data?.message || "Signup failed",
-    };
-  }
-};
-const logout = async () => {
-  try {
-    await logoutUser(); // calls backend
-  } catch (err) {
-    console.log("Logout error:", err);
-  } finally {
-    setUser(null);
-    localStorage.removeItem("auth_user");
-  }
-};
+      return {
+        success: true,
+        user: res.data.user,
+      };
+    } catch (err) {
+      return {
+        success: false,
+        message: err.response?.data?.message || "Signup failed",
+      };
+    }
+  };
+  const logout = async () => {
+    try {
+      await logoutUser(); // calls backend
+    } catch (err) {
+      console.log("Logout error:", err);
+    } finally {
+      setUser(null);
+      localStorage.removeItem("auth_user");
+    }
+  };
 
   return (
     <AuthContext.Provider

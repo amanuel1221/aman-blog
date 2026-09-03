@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { FaCheckCircle, FaMapMarkerAlt, FaGithub, FaLinkedin, FaTwitter, FaEnvelope } from "react-icons/fa";
 import { SiHackerrank } from "react-icons/si";
-import {submitContactMessage} from "../api/contactApi";
+import { submitContactMessage } from "../api/contactApi";
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -14,7 +14,6 @@ const Contact = () => {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState("");
-  const [showTip, setShowTip] = useState(false);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -82,152 +81,155 @@ const Contact = () => {
   };
 
   return (
-    <section id="contact" className="bg-[#f2f6fd] py-24 px-4 flex flex-col items-center"
-    data-testid="contact-section"
+    <section 
+      id="contact" 
+      className="bg-[#f2f6fd] py-10 md:py-24 px-3 xs:px-4 flex flex-col items-center overflow-hidden"
+      data-testid="contact-section"
       itemScope 
-      itemType="https://schema.org/ContactPage" >
-      <div className="text-center mb-16">
-        <h1 className="text-4xl font-bold" itemProp="headline" >Let's Work Together</h1>
-        <p className="text-gray-500 mt-3">
+      itemType="https://schema.org/ContactPage" 
+    >
+      <div className="text-center mb-8 md:mb-16 max-w-xl px-2">
+        <h1 className="text-3xl sm:text-4xl font-bold" itemProp="headline">Let's Work Together</h1>
+        <p className="text-gray-500 mt-3 text-sm sm:text-base">
           Have a project in mind or just want to say hello?
         </p>
       </div>
 
-      <div className="max-w-6xl w-full grid lg:grid-cols-2 gap-10 p-6 md:p-12">
-        <div className="border border-blue-400 rounded-2xl p-6">
-          <h2 className="text-xl font-semibold text-gray-700 text-center">
-            Have a project in mind or need help with a website?
-          </h2>
+      <div className="max-w-6xl w-full grid lg:grid-cols-2 gap-6 md:gap-10 p-2 xs:p-4 sm:p-6 md:p-12">
+        {/* Left Side: Info */}
+        <div className="border border-blue-400 rounded-2xl p-4 sm:p-6 flex flex-col justify-between">
+          <div>
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-700 text-center">
+              Have a project in mind or need help with a website?
+            </h2>
 
-          <p className="mt-6 text-gray-600 text-center">
-            Feel free to reach out — I'm open to freelance opportunities and
-            collaboration.
-            <br />
-            <br />
-            Open to frontend internships, junior roles, and freelance work.
-          </p>
+            <p className="mt-4 sm:mt-6 text-gray-600 text-center text-sm sm:text-base">
+              Feel free to reach out — I'm open to freelance opportunities and collaboration.
+              <br /><br />
+              Open to frontend internships, junior roles, and freelance work.
+            </p>
 
-          <div className="mt-8 grid gap-4 text-gray-600">
-            <div className="flex items-center gap-3" itemProp="address" itemScope itemType="https://schema.org/PostalAddress">
-              <FaMapMarkerAlt className="text-blue-500" />
-              <span itemProp="addressCountry">Ethiopia</span>
-            </div>
-            <div className="flex items-center gap-3" data-testid="contact-availability">
-              <FaCheckCircle className="text-green-500" />
-              <span>Availability: Open to opportunities</span>
+            <div className="mt-6 sm:mt-8 grid gap-3 text-gray-600 text-sm sm:text-base">
+              <div className="flex items-center gap-3 justify-center sm:justify-start" itemProp="address" itemScope itemType="https://schema.org/PostalAddress">
+                <FaMapMarkerAlt className="text-blue-500 flex-shrink-0" />
+                <span itemProp="addressCountry">Ethiopia</span>
+              </div>
+              <div className="flex items-center gap-3 justify-center sm:justify-start" data-testid="contact-availability">
+                <FaCheckCircle className="text-green-500 flex-shrink-0" />
+                <span>Availability: Open to opportunities</span>
+              </div>
             </div>
           </div>
 
-          <div className="flex gap-4 mt-10 items-center justify-center">
-            <a
-              href="https://github.com/amanuel1221"
-              target="_blank"
-              rel="noopener noreferrer me"
-              className="w-10 h-10 flex items-center justify-center border rounded-lg hover:border-blue-500 hover:text-blue-500 transition"
-              data-testid="github"
-              aria-label="GitHub profile"
-            >
-              <FaGithub />
-            </a>
-            <a
-              href="https://peerlist.io/amanuelamare084"
-              target="_blank"
-              rel="noopener noreferrer me"
-              className="w-10 h-10 flex items-center justify-center border rounded-lg hover:border-blue-500 hover:text-[#00AA6C] transition group"
-              aria-label="Peerlist profile"
-            >
-              <svg 
-                width="20" 
-                height="20" 
-                viewBox="0 0 24 24" 
-                fill="currentColor" 
-                xmlns="http://www.w3.org/2000/svg"
-                className="group-hover:text-[#00AA6C]"
+          <div>
+            {/* Social Icons wrapped gracefully for mobile */}
+            <div className="flex flex-wrap gap-2 sm:gap-4 mt-8 items-center justify-center">
+              <a
+                href="https://github.com/amanuel1221"
+                target="_blank"
+                rel="noopener noreferrer me"
+                className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center border rounded-lg hover:border-blue-500 hover:text-blue-500 transition"
+                data-testid="github"
+                aria-label="GitHub profile"
               >
-                <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm6 12.5h-2.5v5h-3v-5H10v3h-3v-6.5h8.5v3.5z"/>
-              </svg>
-            </a>
-            <div className="relative inline-block group">
+                <FaGithub />
+              </a>
+              <a
+                href="https://peerlist.io/amanuelamare084"
+                target="_blank"
+                rel="noopener noreferrer me"
+                className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center border rounded-lg hover:border-blue-500 hover:text-[#00AA6C] transition group"
+                aria-label="Peerlist profile"
+              >
+                <svg 
+                  width="18" 
+                  height="18" 
+                  viewBox="0 0 24 24" 
+                  fill="currentColor" 
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="group-hover:text-[#00AA6C]"
+                >
+                  <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm6 12.5h-2.5v5h-3v-5H10v3h-3v-6.5h8.5v3.5z"/>
+                </svg>
+              </a>
               <a
                 href="https://linkedin.com/in/amanuel-amare-684234372"
                 target="_blank"
                 rel="noopener noreferrer me"
-                className="w-10 h-10 flex items-center justify-center border rounded-lg 
-                           hover:border-blue-500 hover:text-blue-500 transition"
+                className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center border rounded-lg hover:border-blue-500 hover:text-blue-500 transition"
                 data-testid="linkedin"
                 aria-label="Linkedin profile"
-              
               >
                 <FaLinkedin />
               </a>
-             
-            </div>
-            <a
-              href="https://x.com/AmanuelAma66386"
-              target="_blank"
-              rel="noopener noreferrer me"
-              className="w-10 h-10 flex items-center justify-center border rounded-lg hover:border-blue-500 hover:text-blue-500 transition"
-              data-testid="twitter"
-              aria-label="twitter profile"
-            >
-              <FaTwitter />
-            </a>
-            <a
-              href="https://www.hackerrank.com/settings/account"
-              target="_blank"
-              rel="noopener noreferrer me"
-              className="w-10 h-10 flex items-center justify-center border rounded-lg hover:border-blue-500 hover:text-blue-500 transition"
-              data-testid="hacker-rank"
-              aria-label="hacker-rank profile"
-            >
-              <SiHackerrank />
-            </a>
-            <a
-              href="mailto:bdu1600905@bdu.edu.et"
-              className="w-10 h-10 flex items-center justify-center border rounded-lg hover:border-blue-500 hover:text-blue-500 transition"
-              data-testid="email"
-              aria-label="mailing service"  
-              itemProp="email"
-            >
-              <FaEnvelope />
-            </a>
-          </div>
-          
-          <p className="text-gray-700 text-sm mt-2 text-center" itemProp="email">
-            bdu1600905@bdu.edu.et
-          </p>
-
-          <div className="mt-8 flex justify-center">
-            <a
-              href="/assets/images/Amanuel_cv.pdf"
-              download="Amanuel_CV.pdf"
-              className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg active:scale-95"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={2}
-                stroke="currentColor"
-                className="w-5 h-5"
+              <a
+                href="https://x.com/AmanuelAma66386"
+                target="_blank"
+                rel="noopener noreferrer me"
+                className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center border rounded-lg hover:border-blue-500 hover:text-blue-500 transition"
+                data-testid="twitter"
+                aria-label="twitter profile"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M7.5 12L12 16.5m0 0L16.5 12M12 16.5V3"
-                />
-              </svg>
-              Download CV
-            </a>
+                <FaTwitter />
+              </a>
+              <a
+                href="https://www.hackerrank.com/settings/account"
+                target="_blank"
+                rel="noopener noreferrer me"
+                className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center border rounded-lg hover:border-blue-500 hover:text-blue-500 transition"
+                data-testid="hacker-rank"
+                aria-label="hacker-rank profile"
+              >
+                <SiHackerrank />
+              </a>
+              <a
+                href="mailto:bdu1600905@bdu.edu.et"
+                className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center border rounded-lg hover:border-blue-500 hover:text-blue-500 transition"
+                data-testid="email"
+                aria-label="mailing service"  
+                itemProp="email"
+              >
+                <FaEnvelope />
+              </a>
+            </div>
+
+            <p className="text-gray-700 text-xs sm:text-sm mt-3 text-center break-all" itemProp="email">
+              bdu1600905@bdu.edu.et
+            </p>
+
+            <div className="mt-6 flex justify-center">
+              <a
+                href="/assets/images/Amanuel_cv.pdf"
+                download="Amanuel_CV.pdf"
+                className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 sm:px-6 sm:py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg active:scale-95 text-sm sm:text-base"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={2}
+                  stroke="currentColor"
+                  className="w-5 h-5 flex-shrink-0"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M7.5 12L12 16.5m0 0L16.5 12M12 16.5V3"
+                  />
+                </svg>
+                Download CV
+              </a>
+            </div>
           </div>
         </div>
 
-        <div className="border rounded-2xl p-8">
-          <h2 className="text-center font-semibold mb-8">Let's work together</h2>
+        {/* Right Side: Form */}
+        <div className="border rounded-2xl p-4 sm:p-8">
+          <h2 className="text-center font-semibold mb-6 sm:mb-8 text-base sm:text-lg">Let's work together</h2>
 
-          <form data-testid="contact-form" onSubmit={handleSubmit} className="space-y-6">
-            <div className="flex flex-col md:flex-row md:items-center gap-3">
-              <label className="md:w-32 text-center md:text-right font-medium">
+          <form data-testid="contact-form" onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+            <div className="flex flex-col md:flex-row md:items-center gap-1.5 md:gap-3">
+              <label className="md:w-28 text-left md:text-right font-medium text-sm sm:text-base">
                 Name:
               </label>
               <div className="flex-1">
@@ -237,7 +239,7 @@ const Contact = () => {
                   value={formData.name}
                   onChange={handleChange}
                   placeholder="Your name"
-                  className="w-full px-4 py-2.5 rounded-md border text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-400"
+                  className="w-full px-3.5 py-2 sm:py-2.5 rounded-md border text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-400"
                 />
                 {errors.name && (
                   <p data-testid="error-name" className="text-red-500 text-xs mt-1">{errors.name}</p>
@@ -245,8 +247,8 @@ const Contact = () => {
               </div>
             </div>
 
-            <div className="flex flex-col md:flex-row md:items-center gap-3">
-              <label className="md:w-32 text-center md:text-right font-medium" itemProp="email">
+            <div className="flex flex-col md:flex-row md:items-center gap-1.5 md:gap-3">
+              <label className="md:w-28 text-left md:text-right font-medium text-sm sm:text-base">
                 Email:
               </label>
               <div className="flex-1">
@@ -256,7 +258,7 @@ const Contact = () => {
                   value={formData.email}
                   onChange={handleChange}
                   placeholder="you@example.com"
-                  className="w-full px-4 py-2.5 rounded-md border text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-400"
+                  className="w-full px-3.5 py-2 sm:py-2.5 rounded-md border text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-400"
                 />
                 {errors.email && (
                   <p data-testid="error-email" className="text-red-500 text-xs mt-1">{errors.email}</p>
@@ -264,8 +266,8 @@ const Contact = () => {
               </div>
             </div>
 
-            <div className="flex flex-col md:flex-row md:items-center gap-3">
-              <label className="md:w-32 text-center md:text-right font-medium">
+            <div className="flex flex-col md:flex-row md:items-center gap-1.5 md:gap-3">
+              <label className="md:w-28 text-left md:text-right font-medium text-sm sm:text-base">
                 Company:
               </label>
               <input
@@ -274,12 +276,12 @@ const Contact = () => {
                 value={formData.company}
                 onChange={handleChange}
                 placeholder="Optional"
-                className="flex-1 px-4 py-2.5 rounded-md border text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-400"
+                className="flex-1 px-3.5 py-2 sm:py-2.5 rounded-md border text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-400"
               />
             </div>
 
-            <div className="flex flex-col md:flex-row gap-3">
-              <label className="md:w-32 text-center md:text-right font-medium md:pt-2">
+            <div className="flex flex-col md:flex-row gap-1.5 md:gap-3">
+              <label className="md:w-28 text-left md:text-right font-medium text-sm sm:text-base md:pt-2">
                 Message:
               </label>
               <div className="flex-1">
@@ -290,7 +292,7 @@ const Contact = () => {
                   onChange={handleChange}
                   placeholder="Hey Amanuel..."
                   rows="4"
-                  className="w-full px-4 py-2.5 rounded-md border text-sm outline-none resize-none focus:border-blue-500 focus:ring-1 focus:ring-blue-400"
+                  className="w-full px-3.5 py-2 sm:py-2.5 rounded-md border text-sm outline-none resize-none focus:border-blue-500 focus:ring-1 focus:ring-blue-400"
                 />
                 {errors.message && (
                   <p data-testid="error-message" className="text-red-500 text-xs mt-1">{errors.message}</p>
@@ -300,7 +302,7 @@ const Contact = () => {
 
             <button
               disabled={loading}
-              className="w-full py-2.5 rounded-md bg-white border text-sm font-semibold hover:bg-gray-100 transition disabled:opacity-60 flex items-center justify-center gap-2"
+              className="w-full py-2.5 rounded-md bg-white border text-sm font-semibold hover:bg-gray-100 transition disabled:opacity-60 flex items-center justify-center gap-2 cursor-pointer"
             >
               {loading ? (
                 <>
@@ -324,7 +326,7 @@ const Contact = () => {
               <p data-testid="sucess-submit" className="text-green-600 text-center text-sm">{success}</p>
             )}
             {errors.submit && (
-              <p data-testid="error-submit" className="text-red-500 text-center text-sm"> {errors.submit}  </p>
+              <p data-testid="error-submit" className="text-red-500 text-center text-sm"> {errors.submit} </p>
             )}
           </form>
         </div>
