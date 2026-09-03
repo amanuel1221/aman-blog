@@ -10,6 +10,8 @@ const commentRoutes = require("./routes/commentRoutes.js");
 const contactRoutes = require("./routes/contactRoutes.js");
 const adminRoutes = require("./routes/adminRoutes.js");
 
+const googleAuthRoutes = require("./routes/googleAuthRoutes");
+
 
 
 app.use(express.json());
@@ -29,6 +31,7 @@ app.use("/api", commentRoutes);
 app.use("/api", contactRoutes);
 
 app.use("/api/admin", adminRoutes);
+app.use("/auth", googleAuthRoutes);
 
 app.get("/", (req, res) => {
   res.status(200).json({

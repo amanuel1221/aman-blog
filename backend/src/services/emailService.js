@@ -1,14 +1,17 @@
-const nodemailer = require("nodemailer");
+const { google } = require("googleapis");
 
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 465,
-  secure: true,
+const oauth2Client = new google.auth.OAuth2(
+  process.env.GOOGLE_CLIENT_ID,
+  process.env.GOOGLE_CLIENT_SECRET
+);
 
-  auth: {
-    user: process.env.GMAIL_USER,
-    pass: process.env.GMAIL_APP_PASSWORD,
-  },
+oauth2Client.setCredentials({
+  refresh_token: process.env.GOOGLE_REFRESH_TOKEN,
+});
+
+const gmail = google.gmail({
+  version: "v1",
+  auth: oauth2Client,
 });
 
 const getWelcomeEmailTemplate = (name) => {
@@ -182,21 +185,42 @@ const sendWelcomeEmail = async (name, email) => {
   console.log(`📧 Sending welcome email to: ${email}`);
 
   try {
-    const info = await transporter.sendMail({
-      from: `"Aman Blog" <${process.env.GMAIL_USER}>`,
-      to: email,
-      subject: "Welcome to Aman Blog 👋",
-      html: getWelcomeEmailTemplate(name),
+    const html = getWelcomeEmailTemplate(name);
+
+    const message = [
+      `From: Aman Blog <${process.env.GMAIL_USER}>`,
+      `To: ${email}`,
+      "Subject: Welcome to Aman Blog 👋",
+      "MIME-Version: 1.0",
+      "Content-Type: text/html; charset=UTF-8",
+      "",
+      html,
+    ].join("\r\n");
+
+    const encodedMessage = Buffer.from(message)
+      .toString("base64url");
+
+    const response = await gmail.users.messages.send({
+      userId: "me",
+      requestBody: {
+        raw: encodedMessage,
+      },
     });
 
-    console.log(`✅ Welcome email sent: ${info.messageId}`);
-    return info;
+    console.log(
+      `✅ Welcome email sent: ${response.data.id}`
+    );
+
+    return response.data;
   } catch (error) {
-    console.error("❌ Failed to send welcome email:", error);
+    console.error(
+      "❌ Failed to send welcome email:",
+      error.response?.data || error.message
+    );
+
     throw new Error("Failed to send welcome email");
   }
 };
-
 module.exports = {
   sendWelcomeEmail,
 };

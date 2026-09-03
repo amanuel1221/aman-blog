@@ -29,7 +29,16 @@ const registerUser = async (userData) => {
         email,
         password: hashedPassword,
     });
-   
+   sendWelcomeEmail(user.name, user.email)
+  .then(() => {
+    console.log(`✅ Welcome email sent to ${user.email}`);
+  })
+  .catch((error) => {
+    console.error(
+      `⚠️ Welcome email failed for ${user.email}:`,
+      error.message
+    );
+  });
 
 
     const token = generateToken(user._id);
