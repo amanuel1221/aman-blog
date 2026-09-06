@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
+
 import {
   loginUser,
   registerUser,
@@ -10,9 +16,7 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-
   const [loading, setLoading] = useState(true);
-
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -20,20 +24,17 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const checkAuth = async () => {
-    const savedUser = localStorage.getItem("auth_user");
-
-    // No saved session → don't call /auth/me
-    if (!savedUser) {
-      setUser(null);
-      setLoading(false);
-      return;
-    }
-
     try {
       const { data } = await getCurrentUser();
 
       if (data.success) {
         setUser(data.user);
+
+        // Keep localStorage only as a UI convenience
+        localStorage.setItem(
+          "auth_user",
+          JSON.stringify(data.user)
+        );
       } else {
         setUser(null);
         localStorage.removeItem("auth_user");
@@ -48,10 +49,17 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const res = await loginUser({ email, password });
+      const res = await loginUser({
+        email,
+        password,
+      });
 
       setUser(res.data.user);
-      localStorage.setItem("auth_user", JSON.stringify(res.data.user));
+
+      localStorage.setItem(
+        "auth_user",
+        JSON.stringify(res.data.user)
+      );
 
       return {
         success: true,
@@ -60,16 +68,27 @@ export const AuthProvider = ({ children }) => {
     } catch (err) {
       return {
         success: false,
-        message: err.response?.data?.message || "invalid Credintials",
+        message:
+          err.response?.data?.message ||
+          "Invalid credentials",
       };
     }
   };
+
   const signup = async (name, email, password) => {
     try {
-      const res = await registerUser({ name, email, password }); // ✅ FIXED
+      const res = await registerUser({
+        name,
+        email,
+        password,
+      });
 
       setUser(res.data.user);
-      localStorage.setItem("auth_user", JSON.stringify(res.data.user));
+
+      localStorage.setItem(
+        "auth_user",
+        JSON.stringify(res.data.user)
+      );
 
       return {
         success: true,
@@ -78,13 +97,16 @@ export const AuthProvider = ({ children }) => {
     } catch (err) {
       return {
         success: false,
-        message: err.response?.data?.message || "Signup failed",
+        message:
+          err.response?.data?.message ||
+          "Signup failed",
       };
     }
   };
+
   const logout = async () => {
     try {
-      await logoutUser(); // calls backend
+      await logoutUser();
     } catch (err) {
       console.log("Logout error:", err);
     } finally {
