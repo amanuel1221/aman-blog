@@ -16,12 +16,26 @@ const userSchema = new mongoose.Schema(
       trim: true,
     },
 
+    // Password is only used for local email/password accounts.
+    // Google accounts don't have a password.
     password: {
       type: String,
-      required: [true, "Password is required"],
       select: false,
     },
 
+    // Google account ID
+    googleId: {
+      type: String,
+      unique: true,
+      sparse: true,
+    },
+
+    // Authentication provider
+    authProvider: {
+      type: String,
+      enum: ["local", "google"],
+      default: "local",
+    },
 
     role: {
       type: String,
@@ -33,7 +47,6 @@ const userSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
-
 
 const User = mongoose.model("User", userSchema);
 

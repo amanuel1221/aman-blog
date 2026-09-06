@@ -11,6 +11,8 @@ const contactRoutes = require("./routes/contactRoutes.js");
 const adminRoutes = require("./routes/adminRoutes.js");
 
 const googleAuthRoutes = require("./routes/googleAuthRoutes");
+const googleSignInRoutes = require("./routes/googleSignInRoutes.js"); // Google Sign-In
+
 
 
 
@@ -26,6 +28,8 @@ app.use(
 );
 
 app.use("/auth", authRoutes);
+app.use("/auth", googleSignInRoutes);
+
 app.use("/posts", postRoutes);
 app.use("/api", commentRoutes);
 app.use("/api", contactRoutes);
