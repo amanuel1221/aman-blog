@@ -12,7 +12,7 @@ const adminRoutes = require("./routes/adminRoutes.js");
 
 const googleAuthRoutes = require("./routes/googleAuthRoutes");
 const googleSignInRoutes = require("./routes/googleSignInRoutes.js"); // Google Sign-In
-
+const imageRoutes = require("./routes/imageRoutes.js");
 
 
 
@@ -33,6 +33,7 @@ app.use("/auth", googleSignInRoutes);
 app.use("/posts", postRoutes);
 app.use("/api", commentRoutes);
 app.use("/api", contactRoutes);
+app.use("/api/images", imageRoutes);
 
 app.use("/api/admin", adminRoutes);
 app.use("/auth", googleAuthRoutes);
