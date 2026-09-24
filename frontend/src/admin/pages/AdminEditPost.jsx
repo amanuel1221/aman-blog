@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { getPostById, updatePost } from "../../api/postApi";
+import MarkdownEditor from "../components/MarkdownEditor";
 
 const AdminEditPost = () => {
   const { id } = useParams();
@@ -26,10 +27,12 @@ const AdminEditPost = () => {
 
   const [errors, setErrors] = useState({});
 
-  // FETCH POST
   useEffect(() => {
     const loadPost = async () => {
       try {
+        setLoading(true);
+        setServerError("");
+
         const res = await getPostById(id);
         const post = res.data.post;
 
@@ -43,6 +46,7 @@ const AdminEditPost = () => {
 
         setExistingCoverUrl(post.coverImage?.url || "");
       } catch (err) {
+        console.error("Failed to load post:", err);
         setServerError("Failed to load post. Please try refreshing.");
       } finally {
         setLoading(false);
@@ -52,48 +56,69 @@ const AdminEditPost = () => {
     loadPost();
   }, [id]);
 
-  // VALIDATION
   const validate = () => {
     const err = {};
 
-    if (!form.title.trim()) err.title = "Title is required";
-    if (!form.category.trim()) err.category = "Category is required";
-    if (!form.content.trim()) err.content = "Content is required";
+    if (!form.title.trim()) {
+      err.title = "Title is required";
+    }
+
+    if (!form.category.trim()) {
+      err.category = "Category is required";
+    }
+
+    if (!form.content.trim()) {
+      err.content = "Content is required";
+    }
+
     if (form.content.trim() && form.content.trim().length < 150) {
       err.content = `Content must be at least 150 characters (currently ${form.content.trim().length})`;
     }
 
     setErrors(err);
+
     return Object.keys(err).length === 0;
   };
 
-  // CHANGE HANDLERS
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-    if (errors[e.target.name]) {
-      setErrors({ ...errors, [e.target.name]: "" });
+    const { name, value } = e.target;
+
+    setForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+
+    if (errors[name]) {
+      setErrors((prev) => ({
+        ...prev,
+        [name]: "",
+      }));
     }
   };
 
   const handleImageChange = (e) => {
     const file = e.target.files?.[0];
+
     if (!file) return;
 
     setCoverImageFile(file);
     setCoverImagePreview(URL.createObjectURL(file));
   };
 
-  // SUBMIT
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     setServerError("");
 
-    if (!validate()) return;
+    if (!validate()) {
+      return;
+    }
 
     try {
       setSaving(true);
 
       const formData = new FormData();
+
       formData.append("title", form.title.trim());
       formData.append("excerpt", form.excerpt.trim());
       formData.append("content", form.content.trim());
@@ -101,9 +126,10 @@ const AdminEditPost = () => {
 
       const parsedTags = form.tags
         .split(",")
-        .map((t) => t.trim())
+        .map((tag) => tag.trim())
         .filter(Boolean);
-      if (parsedTags.length) {
+
+      if (parsedTags.length > 0) {
         formData.append("tags", JSON.stringify(parsedTags));
       }
 
@@ -112,8 +138,10 @@ const AdminEditPost = () => {
       }
 
       await updatePost(id, formData);
+
       navigate("/admin/posts");
     } catch (err) {
+      console.error("Update post failed:", err);
       setServerError(
         err.response?.data?.message || "Update failed. Please try again."
       );
@@ -124,49 +152,51 @@ const AdminEditPost = () => {
 
   if (loading) {
     return (
-      <div 
-        data-testid="loading-state" 
-        className="flex flex-col items-center justify-center min-h-[400px] space-y-3"
-      >
-        <div className="w-10 h-10 border-4 border-slate-200 border-t-blue-600 rounded-full animate-spin" />
-        <p className="text-slate-500 font-medium animate-pulse">Loading post details...</p>
+      <div data-testid="loading-state" className="flex min-h-[400px] flex-col items-center justify-center space-y-3">
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-slate-200 border-t-blue-600" />
+        <p className="animate-pulse font-medium text-slate-500">
+          Loading post details...
+        </p>
       </div>
     );
   }
 
-  // Input styles reusable configurations
-  const baseInputStyles = "w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-slate-900 placeholder-slate-400 shadow-sm transition duration-150 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:bg-slate-50 disabled:text-slate-500";
-  const errorInputStyles = "border-red-300 focus:border-red-500 focus:ring-red-500/20";
+  const baseInputStyles = `w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-slate-900 placeholder-slate-400 shadow-sm transition duration-150 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:bg-slate-50 disabled:text-slate-500`;
+  const errorInputStyles = `border-red-300 focus:border-red-500 focus:ring-red-500/20`;
 
   return (
-    <main className="max-w-4xl mx-auto p-6 bg-white rounded-xl shadow-sm border border-slate-100">
-      <header className="mb-6 pb-4 border-b border-slate-100">
-        <h1 className="text-2xl font-bold text-slate-800">Edit Post</h1>
-        <p className="text-sm text-slate-500 mt-1">Modify your post settings, images, and content metadata.</p>
+    <main className="mx-auto max-w-4xl rounded-xl border border-slate-100 bg-white p-6 shadow-sm">
+      <header className="mb-6 border-b border-slate-100 pb-4">
+        <h1 className="text-2xl font-bold text-slate-800">
+          Edit Post
+        </h1>
+        <p className="mt-1 text-sm text-slate-500">
+          Modify your post settings, images, and content metadata.
+        </p>
       </header>
 
-      <form 
-        onSubmit={handleSubmit} 
-        data-testid="admin-edit-post-form" 
+      <form
+        onSubmit={handleSubmit}
+        data-testid="admin-edit-post-form"
         className="space-y-6"
         noValidate
       >
         {serverError && (
-          <div 
+          <div
             data-testid="server-error"
-            className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700 font-medium"
+            className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm font-medium text-red-700"
             role="alert"
           >
             {serverError}
           </div>
         )}
 
-        {/* Title Grid Section */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           <div className="space-y-1.5">
             <label htmlFor="title" className="text-sm font-semibold text-slate-700">
               Post Title <span className="text-red-500">*</span>
             </label>
+
             <input
               id="title"
               name="title"
@@ -178,8 +208,11 @@ const AdminEditPost = () => {
               data-testid="input-title"
               className={`${baseInputStyles} ${errors.title ? errorInputStyles : ""}`}
             />
+
             {errors.title && (
-              <p data-testid="error-title" className="text-xs font-medium text-red-600 mt-1">{errors.title}</p>
+              <p data-testid="error-title" className="mt-1 text-xs font-medium text-red-600">
+                {errors.title}
+              </p>
             )}
           </div>
 
@@ -187,6 +220,7 @@ const AdminEditPost = () => {
             <label htmlFor="category" className="text-sm font-semibold text-slate-700">
               Category <span className="text-red-500">*</span>
             </label>
+
             <input
               id="category"
               name="category"
@@ -198,17 +232,20 @@ const AdminEditPost = () => {
               data-testid="input-category"
               className={`${baseInputStyles} ${errors.category ? errorInputStyles : ""}`}
             />
+
             {errors.category && (
-              <p data-testid="error-category" className="text-xs font-medium text-red-600 mt-1">{errors.category}</p>
+              <p data-testid="error-category" className="mt-1 text-xs font-medium text-red-600">
+                {errors.category}
+              </p>
             )}
           </div>
         </div>
 
-        {/* Excerpt Section */}
         <div className="space-y-1.5">
           <label htmlFor="excerpt" className="text-sm font-semibold text-slate-700">
             Excerpt / Summary
           </label>
+
           <input
             id="excerpt"
             name="excerpt"
@@ -222,11 +259,11 @@ const AdminEditPost = () => {
           />
         </div>
 
-        {/* Tags Section */}
         <div className="space-y-1.5">
           <label htmlFor="tags" className="text-sm font-semibold text-slate-700">
             Tags
           </label>
+
           <input
             id="tags"
             name="tags"
@@ -240,88 +277,98 @@ const AdminEditPost = () => {
           />
         </div>
 
-        {/* Media Layout Segment */}
-        <section className="p-4 rounded-xl border border-slate-200 bg-slate-50/50 space-y-4">
+        <section className="space-y-4 rounded-xl border border-slate-200 bg-slate-50/50 p-4">
           <header>
-            <h2 className="text-sm font-semibold text-slate-700">Cover Image</h2>
-            <p className="text-xs text-slate-400">Accepted resolutions are PNG, JPEG, JPG, and WebP.</p>
+            <h2 className="text-sm font-semibold text-slate-700">
+              Cover Image
+            </h2>
+            <p className="text-xs text-slate-400">
+              Accepted resolutions are PNG, JPEG, JPG, and WebP.
+            </p>
           </header>
-          
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+
+          <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
             {(coverImagePreview || existingCoverUrl) && (
               <img
                 src={coverImagePreview || existingCoverUrl}
-                alt="Post layout visualization"
+                alt="Post cover preview"
                 data-testid="image-preview"
-                className="h-28 w-44 rounded-lg object-cover border border-slate-300 bg-white shadow-sm"
+                className="h-28 w-44 rounded-lg border border-slate-300 bg-white object-cover shadow-sm"
               />
             )}
+
             <div className="w-full sm:w-auto">
               <input
                 ref={fileInputRef}
                 id="coverImage"
                 type="file"
-                accept="image/jpeg,image/jpg,image/png,image/webp"
+                accept="image/jpeg, image/jpg, image/png, image/webp"
                 onChange={handleImageChange}
                 disabled={saving}
                 data-testid="input-file"
-                className="block w-full text-sm text-slate-500
-                  file:mr-4 file:py-2 file:px-4
-                  file:rounded-md file:border-0
-                  file:text-sm file:font-semibold
-                  file:bg-slate-200 file:text-slate-700
-                  hover:file:bg-slate-300 file:cursor-pointer transition duration-150"
+                className="block w-full text-sm text-slate-500 file:mr-4 file:cursor-pointer file:rounded-md file:border-0 file:bg-slate-200 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-slate-700 hover:file:bg-slate-300"
               />
             </div>
           </div>
         </section>
 
-        {/* Core Rich Content Area */}
         <div className="space-y-1.5">
-          <div className="flex justify-between items-center">
-            <label htmlFor="content" className="text-sm font-semibold text-slate-700">
+          <div className="flex items-center justify-between">
+            <label className="text-sm font-semibold text-slate-700">
               Body Content <span className="text-red-500">*</span>
             </label>
+
             <span className="text-xs text-slate-400">
               Min 150 chars ({form.content.trim().length})
             </span>
           </div>
-          <textarea
-            id="content"
-            name="content"
-            value={form.content}
-            onChange={handleChange}
-            disabled={saving}
-            placeholder="Write your beautiful content right here..."
-            rows={12}
-            data-testid="input-content"
-            className={`${baseInputStyles} font-sans resize-y ${errors.content ? errorInputStyles : ""}`}
-          />
+
+          <div className="overflow-hidden rounded-lg border border-slate-200 bg-white">
+            <MarkdownEditor
+              value={form.content}
+              onChange={(content) => {
+                setForm((prev) => ({
+                  ...prev,
+                  content,
+                }));
+
+                if (errors.content) {
+                  setErrors((prev) => ({
+                    ...prev,
+                    content: "",
+                  }));
+                }
+              }}
+            />
+          </div>
+
           {errors.content && (
-            <p data-testid="error-content" className="text-xs font-medium text-red-600 mt-1">{errors.content}</p>
+            <p data-testid="error-content" className="mt-1 text-xs font-medium text-red-600">
+              {errors.content}
+            </p>
           )}
         </div>
 
-        {/* Submission Management Panel */}
-        <footer className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+        <footer className="flex items-center justify-end gap-3 border-t border-slate-100 pt-4">
           <button
             type="button"
             onClick={() => navigate("/admin/posts")}
             disabled={saving}
             data-testid="btn-cancel"
-            className="px-5 py-2.5 rounded-lg border border-slate-300 text-sm font-medium text-slate-700 hover:bg-slate-50 transition duration-150 disabled:opacity-50"
+            className="rounded-lg border border-slate-300 px-5 py-2.5 text-sm font-medium text-slate-700 transition duration-150 hover:bg-slate-50 disabled:opacity-50"
           >
             Cancel
           </button>
+
           <button
             type="submit"
             disabled={saving}
             data-testid="btn-submit"
-            className="flex items-center justify-center min-w-[120px] bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 text-sm font-semibold rounded-lg transition duration-150 shadow-sm disabled:bg-blue-400 disabled:cursor-not-allowed"
+            className="flex min-w-[120px] items-center justify-center rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition duration-150 hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-400"
           >
             {saving ? (
               <>
-                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
+                <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
                 Updating...
               </>
             ) : (
